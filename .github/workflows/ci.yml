@@ -1,0 +1,114 @@
+name: CI
+
+on:
+  pull_request:
+  workflow_call:
+  push:
+    branches:
+      - main
+
+env:
+  RUST_BACKTRACE: 1
+  SECRET_KEY: "${{ secrets.SECRET_KEY }}"
+  PUBLIC_KEY: "${{ secrets.PUBLIC_KEY }}"
+
+jobs:
+  ci-pass:
+    name: CI is green
+    runs-on: ubuntu-latest
+    needs:
+      - style
+      - test
+      - docs
+    steps:
+      - run: exit 0
+
+  style:
+    name: Check Style
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Install rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          components: rustfmt
+          profile: minimal
+          override: true
+
+      - name: cargo fmt -- --check
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: -- --check
+
+      - name: temporary workaround - fmt all files under src
+        run: cargo fmt -- --check $(find . -name '*.rs' -print)
+
+  test:
+    name: ${{ matrix.name }}
+    needs: [style]
+
+    runs-on: ${{ matrix.os || 'ubuntu-latest' }}
+
+    strategy:
+      matrix:
+        name:
+          - linux / stable
+          # - macOS / stable
+
+        include:
+          - name: linux / stable
+          # - name: macOS / stable
+          #   os: macOS-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Install rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust || 'stable' }}
+          target: ${{ matrix.target }}
+          profile: minimal
+          override: true
+
+      - name: Build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: ${{ matrix.features }}
+
+      - name: Test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: ${{ matrix.features }} ${{ matrix.test-features }} -- --test-threads=1
+
+  docs:
+    name: Docs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+
+      - name: Check documentation
+        env:
+          RUSTDOCFLAGS: -D warnings
+        uses: actions-rs/cargo@v1
+        with:
+          command: doc
+          args: --no-deps --document-private-items --all-features

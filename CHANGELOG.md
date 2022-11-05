@@ -1,0 +1,33 @@
+# 0.1.0 - NIP-01 Support
+
+- Added: `Client` structure
+- Added: `Client::new` function
+- Added: `Client.add_relay` function
+- Added: `Client.listen` function
+- Added: `Client.subscribe` function
+- Added: `Client.subscribe_with_id` function
+- Added: `Client.unsubscribe` function
+- Added: `Identity` structure
+- Added: `Identity::from_str` function with hex private key support
+- Added: `random_hash` function
+- Added: `get_timestamp` function
+- Added: `get_random_secret_key` function
+- Added: `secret_key_from_str` function
+- Added: `get_public_key_from_secret` function
+- Added: `get_str_keys_from_secret` function
+- Added: `EventPrepare` structure
+- Added: `EventPrepare.get_content` function
+- Added: `EventPrepare.get_content_id` function
+- Added: `EventPrepare.to_event` function
+- Added: `Event` structure
+- Added: `Event.to_string` function
+- Added `Req` structure
+- Added: `Req::new` function
+- Added: `Req.get_close_event` function
+- Added: `Req.to_string()` function
+- Added: `ReqFilter` structure
+- Added: `ReqFilter.to_json` function
+- Added: `SimplifiedWS` structure
+- Added: `SimplifiedWS::new` function
+- Added: `SimplifiedWS.send_message` function
+- Added: `SimplifiedWS.read_message` function
