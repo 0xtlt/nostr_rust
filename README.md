@@ -16,7 +16,7 @@ This example uses [Tungstenite](https://crates.io/crates/tungstenite) for event 
 
 ```toml
 [dependencies]
-nostr_rust = "0.4"
+nostr_rust = "0.5"
 tungstenite = "0.17"
 ```
 
@@ -121,7 +121,7 @@ fn main() {
 | 06  | ❌            | Not supported  | Basic key derivation from mnemonic seed phrase               |
 | 07  | Not concerned | Not supported  | window.nostr capability for web browsers                     |
 | 08  | ❌            | Not supported  | Handling Mentions                                            |
-| 09  | ❌            | Not supported  | Event Deletion                                               |
+| 09  | ✅            | 0.5.0          | Event Deletion                                               |
 | 10  | ❌            | Not supported  | Conventions for clients' use of e and p tags in text events. |
 | 11  | ❌            | Not supported  | Relay Information Document                                   |
 | 12  | ❌            | Not supported  | Generic Tag Queries                                          |

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.0 - NIP-09 Support
+
+- Edit: `Client.publish_text_note` method returns the Event object
+- Edit: `Client.delete_event` method
+- Edit: `Client.delete_event_with_reason` method
+
 ## 0.4.0 - NIP-25 Support
 
 - Added: `Client.react_to` method
