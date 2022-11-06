@@ -1,4 +1,12 @@
-# 0.1.0 - NIP-01 Support
+# Changelog
+
+## 0.2.0 - Architecture change
+
+- Removed: `Client.listen` function (Replaced by `Client.next_data`)
+- Added: `Client.next_data` function
+- Added: `Client.remove_relay` function
+
+## 0.1.0 - NIP-01 Support
 
 - Added: `Client` structure
 - Added: `Client::new` function
