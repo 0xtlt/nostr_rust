@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.0 - NIP-25 Support
+
+- Added: `Client.react_to` method
+- Added: `Client.like` method
+- Added: `Client.dislike` method
+
 ## 0.3.0 - NIP-02 Support
 
 - Added: `Client.get_contact_list` method
