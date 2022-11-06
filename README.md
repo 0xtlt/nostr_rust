@@ -16,7 +16,7 @@ This example uses [Tungstenite](https://crates.io/crates/tungstenite) for event 
 
 ```toml
 [dependencies]
-nostr_rust = "0.3"
+nostr_rust = "0.4"
 tungstenite = "0.17"
 ```
 
@@ -111,27 +111,27 @@ fn main() {
 
 ## NIPs Supported
 
-| NIP | Supported | Client Version | Description                                                  |
-| --- | --------- | -------------- | ------------------------------------------------------------ |
-| 01  | ✅        | 0.1.0          | Basic protocol flow description                              |
-| 02  | ✅        | 0.3.0          | Contact List and Petnames                                    |
-| 03  | ❌        | Not supported  | OpenTimestamps Attestations for Events                       |
-| 04  | ❌        | Not supported  | Encrypted Direct Message                                     |
-| 05  | ❌        | Not supported  | Mapping Nostr keys to DNS-based internet identifiers         |
-| 06  | ❌        | Not supported  | Basic key derivation from mnemonic seed phrase               |
-| 07  | ❌        | Not supported  | window.nostr capability for web browsers                     |
-| 08  | ❌        | Not supported  | Handling Mentions                                            |
-| 09  | ❌        | Not supported  | Event Deletion                                               |
-| 10  | ❌        | Not supported  | Conventions for clients' use of e and p tags in text events. |
-| 11  | ❌        | Not supported  | Relay Information Document                                   |
-| 12  | ❌        | Not supported  | Generic Tag Queries                                          |
-| 13  | ❌        | Not supported  | Proof of Work                                                |
-| 14  | ❌        | Not supported  | Subject tag in text events.                                  |
-| 15  | ❌        | Not supported  | End of Stored Events Notice                                  |
-| 16  | ❌        | Not supported  | Event Treatment                                              |
-| 22  | ❌        | Not supported  | Event created_at Limits                                      |
-| 25  | ❌        | Not supported  | Reactions                                                    |
-| 28  | ❌        | Not supported  | Public Chat                                                  |
+| NIP | Supported     | Client Version | Description                                                  |
+| --- | ------------- | -------------- | ------------------------------------------------------------ |
+| 01  | ✅            | 0.1.0          | Basic protocol flow description                              |
+| 02  | ✅            | 0.3.0          | Contact List and Petnames                                    |
+| 03  | ❌            | Not supported  | OpenTimestamps Attestations for Events                       |
+| 04  | ❌            | Not supported  | Encrypted Direct Message                                     |
+| 05  | ❌            | Not supported  | Mapping Nostr keys to DNS-based internet identifiers         |
+| 06  | ❌            | Not supported  | Basic key derivation from mnemonic seed phrase               |
+| 07  | Not concerned | Not supported  | window.nostr capability for web browsers                     |
+| 08  | ❌            | Not supported  | Handling Mentions                                            |
+| 09  | ❌            | Not supported  | Event Deletion                                               |
+| 10  | ❌            | Not supported  | Conventions for clients' use of e and p tags in text events. |
+| 11  | ❌            | Not supported  | Relay Information Document                                   |
+| 12  | ❌            | Not supported  | Generic Tag Queries                                          |
+| 13  | ❌            | Not supported  | Proof of Work                                                |
+| 14  | ❌            | Not supported  | Subject tag in text events.                                  |
+| 15  | ❌            | Not supported  | End of Stored Events Notice                                  |
+| 16  | ❌            | Not supported  | Event Treatment                                              |
+| 22  | ❌            | Not supported  | Event created_at Limits                                      |
+| 25  | ✅            | 0.4.0          | Reactions                                                    |
+| 28  | ❌            | Not supported  | Public Chat                                                  |
 
 ## License
 
