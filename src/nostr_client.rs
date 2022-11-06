@@ -4,12 +4,13 @@ use std::sync::{Arc, Mutex};
 use crate::events::Event;
 use crate::req::{Req, ReqFilter};
 use crate::websocket::SimplifiedWS;
-use serde_json::json;
+use serde_json::{json, Value};
 use tungstenite::Message;
 
 /// Nostr Client
 pub struct Client {
     pub relays: HashMap<String, Arc<Mutex<SimplifiedWS>>>,
+    pub subscriptions: HashMap<String, Vec<Message>>,
 }
 
 impl Client {
@@ -23,6 +24,7 @@ impl Client {
     pub fn new(default_relays: Vec<&str>) -> Result<Self, String> {
         let mut client = Self {
             relays: HashMap::new(),
+            subscriptions: HashMap::new(),
         };
 
         for relay in default_relays {
@@ -259,5 +261,86 @@ impl Client {
         }
 
         Ok(())
+    }
+
+    /// Add event to a subscription
+    pub fn add_event(&mut self, subscription_id: &str, message: Message) {
+        // Check if the subscription exists
+        if !self.subscriptions.contains_key(subscription_id) {
+            self.subscriptions
+                .insert(subscription_id.to_string(), Vec::new());
+        }
+
+        // Check if the message is already in the subscription
+        if !self.subscriptions[subscription_id].contains(&message) {
+            // Add the message to the subscription
+            self.subscriptions
+                .get_mut(subscription_id)
+                .unwrap()
+                .push(message);
+        }
+    }
+
+    /// Get events and remove them from the subscription
+    pub fn get_events(&mut self, subscription_id: &str) -> Option<Vec<Message>> {
+        self.subscriptions.remove(subscription_id)
+    }
+
+    /// Get events of a given filters
+    ///
+    /// # Example
+    /// ```rust
+    /// use nostr_rust::{nostr_client::Client, req::ReqFilter};
+    /// let mut client = Client::new(vec!["wss://nostr-pub.wellorder.net"]).unwrap();
+    /// let events = client.get_events_of(vec![ReqFilter {
+    ///    ids: None,
+    ///    authors: Some(vec!["884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6".to_string()]),
+    ///    kinds: Some(vec![3]),
+    ///    e: None,
+    ///    p: None,
+    ///    since: None,
+    ///    until: None,
+    ///    limit: Some(1),
+    /// }]).unwrap();
+    /// ```
+    pub fn get_events_of(&mut self, filters: Vec<ReqFilter>) -> Result<Vec<Event>, String> {
+        let mut events: Vec<Event> = Vec::new();
+
+        // Subscribe
+        let id = self.subscribe(filters)?;
+
+        // Get the events
+        loop {
+            let data = self.next_data()?;
+            let mut break_loop = false;
+
+            for (_, message) in data {
+                let event: Value = serde_json::from_str(&message.to_string()).unwrap();
+
+                if event[0] == "EOSE" && event[1].as_str() == Some(&id) {
+                    break_loop = true;
+                    break;
+                }
+
+                self.add_event(&id, message);
+            }
+
+            if break_loop {
+                break;
+            }
+        }
+
+        // unsubscribe
+        self.unsubscribe(&id).unwrap();
+
+        // Get the events
+        if let Some(messages) = self.get_events(&id) {
+            for message in messages {
+                let event: Value = serde_json::from_str(&message.to_string()).unwrap();
+                let event_object: Event = serde_json::from_value(event[2].clone()).unwrap();
+                events.push(event_object);
+            }
+        }
+        Ok(events)
     }
 }
