@@ -1,5 +1,5 @@
+use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
-use std::thread::JoinHandle;
 
 use crate::events::Event;
 use crate::req::{Req, ReqFilter};
@@ -7,12 +7,9 @@ use crate::websocket::SimplifiedWS;
 use serde_json::json;
 use tungstenite::Message;
 
-/// Relay Type contains the relay address and the websocket connection
-pub type Relay = (String, Arc<Mutex<SimplifiedWS>>);
-
 /// Nostr Client
 pub struct Client {
-    pub relays: Vec<Relay>,
+    pub relays: HashMap<String, Arc<Mutex<SimplifiedWS>>>,
 }
 
 impl Client {
@@ -24,7 +21,9 @@ impl Client {
     /// let client = Client::new(vec!["wss://nostr-pub.wellorder.net"]).unwrap();
     /// ```
     pub fn new(default_relays: Vec<&str>) -> Result<Self, String> {
-        let mut client = Self { relays: vec![] };
+        let mut client = Self {
+            relays: HashMap::new(),
+        };
 
         for relay in default_relays {
             client.add_relay(relay)?;
@@ -40,7 +39,7 @@ impl Client {
     /// ```rust
     /// use nostr_rust::nostr_client::Client;
     /// let mut client = Client::new(vec!["wss://nostr-pub.wellorder.net"]).unwrap();
-    /// client.add_relay("wss://nostr-pub.wellorder.net").unwrap();
+    /// client.add_relay("wss://relay.damus.io").unwrap();
     /// ```
     pub fn add_relay(&mut self, relay: &str) -> Result<(), String> {
         let client = match SimplifiedWS::new(relay) {
@@ -48,8 +47,42 @@ impl Client {
             Err(err) => return Err(format!("Error connecting to relay: {}", err)),
         };
 
+        // Check if relay is already added
+        if self.relays.contains_key(relay) {
+            return Err(format!("Relay {} already added", relay));
+        }
+
         self.relays
-            .push((relay.to_string(), Arc::new(Mutex::new(client))));
+            .insert(relay.to_string(), Arc::new(Mutex::new(client)));
+
+        Ok(())
+    }
+
+    /// Remove a relay from the client
+    /// # Example
+    /// ```rust
+    /// use nostr_rust::nostr_client::Client;
+    /// let mut client = Client::new(vec!["wss://nostr-pub.wellorder.net"]).unwrap();
+    /// client.remove_relay("wss://nostr-pub.wellorder.net").unwrap();
+    /// ```
+    pub fn remove_relay(&mut self, relay: &str) -> Result<(), String> {
+        println!("Removing relay {}", relay);
+        if !self.relays.contains_key(relay) {
+            println!("Relay {} not found", relay);
+            return Err(format!("Relay {} not found", relay));
+        }
+
+        println!("Removing relay {}", relay);
+
+        // Close the connection
+        self.relays
+            .remove(relay)
+            .unwrap()
+            .lock()
+            .unwrap()
+            .socket
+            .close(None)
+            .unwrap();
 
         Ok(())
     }
@@ -58,13 +91,16 @@ impl Client {
     pub fn publish_event(&mut self, event: &Event) -> Result<(), String> {
         let json_stringified = json!(["EVENT", event]).to_string();
         let message = Message::text(json_stringified);
-        match self.relays[0].1.lock().unwrap().send_message(&message) {
-            Ok(_) => Ok(()),
-            Err(_) => Err("Unable to send message".to_string()),
+
+        for relay in self.relays.values() {
+            let mut relay = relay.lock().unwrap();
+            relay.send_message(&message)?;
         }
+
+        Ok(())
     }
 
-    /// Listen for data from the relays
+    /// Get next data from the relays
     /// # Example
     /// ```rust
     /// use std::{
@@ -74,7 +110,7 @@ impl Client {
     /// use tungstenite::Message;
     /// use nostr_rust::{nostr_client::Client, req::ReqFilter};
     ///
-    /// fn handle_message(relay_url: String, message: Message) -> Result<(), String> {
+    /// fn handle_message(relay_url: &String, message: &Message) -> Result<(), String> {
     ///   println!("Received message: {:?}", message);
     ///
     ///   Ok(())
@@ -84,9 +120,12 @@ impl Client {
     ///
     /// // Run a new thread to listen
     /// let nostr_clone = client.clone();
-    /// let nostr_thread = thread::spawn(move || {
-    ///     println!("Listening...");
-    ///     nostr_clone.lock().unwrap().listen(handle_message).unwrap();
+    /// let nostr_thread = thread::spawn(move || loop {
+    ///    let events = nostr_clone.lock().unwrap().next_data().unwrap();
+    ///    
+    ///   for (relay_url, message) in events.iter() {
+    ///     handle_message(relay_url, message).unwrap();
+    ///   }
     /// });
     ///
     /// // Subscribe to the most beautiful Nostr profile event
@@ -107,41 +146,18 @@ impl Client {
     /// }])
     /// .unwrap();
     ///
-    /// // Wait 2s for the thread to finish
-    /// std::thread::sleep(std::time::Duration::from_secs(2));
+    /// // Wait 3s for the thread to finish
+    /// std::thread::sleep(std::time::Duration::from_secs(3));
     /// ```
-    pub fn listen<F, E>(&mut self, callback: F) -> Result<(), E>
-    where
-        F: std::marker::Send + 'static + Fn(String, Message) -> Result<(), E>,
-        E: std::marker::Send + 'static + std::fmt::Debug,
-    {
-        let callback = Arc::new(Mutex::new(callback));
-        let mut threads: Vec<JoinHandle<Result<(), E>>> = vec![];
+    pub fn next_data(&mut self) -> Result<Vec<(String, tungstenite::Message)>, String> {
+        let mut events: Vec<(String, tungstenite::Message)> = Vec::new();
 
-        // Create a thread for each relay
-        for relay in self.relays.iter() {
-            let relay_name = relay.0.clone();
-            let relay_socket = relay.1.clone();
-            let callback = callback.clone();
-
-            // Create a thread
-            let thread: JoinHandle<Result<(), E>> = std::thread::spawn(move || {
-                // Listen for messages
-                loop {
-                    let message = relay_socket.lock().unwrap().read_message().unwrap();
-                    callback.lock().unwrap()(relay_name.clone(), message).unwrap();
-                }
-            });
-
-            threads.push(thread);
+        for (relay_name, socket) in self.relays.iter() {
+            let message = socket.lock().unwrap().read_message()?;
+            events.push((relay_name.clone(), message));
         }
 
-        // Wait for the threads to finish
-        for thread in threads {
-            thread.join().unwrap()?;
-        }
-
-        Ok(())
+        Ok(events)
     }
 
     /// Subscribe
@@ -167,10 +183,13 @@ impl Client {
     pub fn subscribe(&mut self, filters: Vec<ReqFilter>) -> Result<String, String> {
         let req = Req::new(None, filters);
         let message = Message::text(req.to_string());
-        match self.relays[0].1.lock().unwrap().send_message(&message) {
-            Ok(_) => Ok(req.subscription_id),
-            Err(_) => Err("Unable to send message".to_string()),
+
+        for relay in self.relays.values() {
+            let mut relay = relay.lock().unwrap();
+            relay.send_message(&message)?;
         }
+
+        Ok(req.subscription_id)
     }
 
     /// Subscribe with a specific ID
@@ -201,10 +220,13 @@ impl Client {
     ) -> Result<(), String> {
         let req = Req::new(Some(subscription_id), filters);
         let message = Message::text(req.to_string());
-        match self.relays[0].1.lock().unwrap().send_message(&message) {
-            Ok(_) => Ok(()),
-            Err(_) => Err("Unable to send message".to_string()),
+
+        for relay in self.relays.values() {
+            let mut relay = relay.lock().unwrap();
+            relay.send_message(&message)?;
         }
+
+        Ok(())
     }
 
     /// Unsubscribe
@@ -230,9 +252,12 @@ impl Client {
     /// ```
     pub fn unsubscribe(&mut self, subscription_id: &str) -> Result<(), String> {
         let message = Message::text(json!(["CLOSE", subscription_id]).to_string());
-        match self.relays[0].1.lock().unwrap().send_message(&message) {
-            Ok(_) => Ok(()),
-            Err(_) => Err("Unable to send message".to_string()),
+
+        for relay in self.relays.values() {
+            let mut relay = relay.lock().unwrap();
+            relay.send_message(&message)?;
         }
+
+        Ok(())
     }
 }

@@ -32,8 +32,8 @@ use tungstenite::Message;
 
 use nostr_rust::{nostr_client::Client, req::ReqFilter, Identity};
 
-fn handle_message(relay_url: String, message: Message) -> Result<(), String> {
-    println!("Received message from {}: {:?}", { relay_url }, message);
+fn handle_message(relay_url: &String, message: &Message) -> Result<(), String> {
+    println!("Received message from {}: {:?}", relay_url, message);
 
     Ok(())
 }
@@ -51,7 +51,11 @@ fn main() {
     let nostr_clone = nostr_client.clone();
     let handle_thread = thread::spawn(move || {
         println!("Listening...");
-        nostr_clone.lock().unwrap().listen(handle_message).unwrap();
+        let events = nostr_clone.lock().unwrap().next_data().unwrap();
+
+        for (relay_url, message) in events.iter() {
+            handle_message(relay_url, message).unwrap();
+        }
     });
 
     // Change metadata
