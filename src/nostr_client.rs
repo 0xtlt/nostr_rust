@@ -1,3 +1,6 @@
+use std::sync::{Arc, Mutex};
+use std::thread::JoinHandle;
+
 use crate::events::Event;
 use crate::req::{Req, ReqFilter};
 use crate::websocket::SimplifiedWS;
@@ -5,7 +8,7 @@ use serde_json::json;
 use tungstenite::Message;
 
 /// Relay Type contains the relay address and the websocket connection
-pub type Relay = (String, SimplifiedWS);
+pub type Relay = (String, Arc<Mutex<SimplifiedWS>>);
 
 /// Nostr Client
 pub struct Client {
@@ -45,7 +48,8 @@ impl Client {
             Err(err) => return Err(format!("Error connecting to relay: {}", err)),
         };
 
-        self.relays.push((relay.to_string(), client));
+        self.relays
+            .push((relay.to_string(), Arc::new(Mutex::new(client))));
 
         Ok(())
     }
@@ -54,7 +58,7 @@ impl Client {
     pub fn publish_event(&mut self, event: &Event) -> Result<(), String> {
         let json_stringified = json!(["EVENT", event]).to_string();
         let message = Message::text(json_stringified);
-        match self.relays[0].1.send_message(&message) {
+        match self.relays[0].1.lock().unwrap().send_message(&message) {
             Ok(_) => Ok(()),
             Err(_) => Err("Unable to send message".to_string()),
         }
@@ -108,20 +112,33 @@ impl Client {
     /// ```
     pub fn listen<F, E>(&mut self, callback: F) -> Result<(), E>
     where
-        F: Fn(String, Message) -> Result<(), E>,
+        F: std::marker::Send + 'static + Fn(String, Message) -> Result<(), E>,
+        E: std::marker::Send + 'static + std::fmt::Debug,
     {
-        for relay in &mut self.relays {
-            let client = &mut relay.1;
-            println!("Listening for messages from relay {}", relay.0);
-            loop {
-                match client.read_message() {
-                    Ok(message) => callback(relay.0.clone(), message),
-                    Err(err) => {
-                        println!("Error reading message: {}", err);
-                        continue;
-                    }
-                }?;
-            }
+        let callback = Arc::new(Mutex::new(callback));
+        let mut threads: Vec<JoinHandle<Result<(), E>>> = vec![];
+
+        // Create a thread for each relay
+        for relay in self.relays.iter() {
+            let relay_name = relay.0.clone();
+            let relay_socket = relay.1.clone();
+            let callback = callback.clone();
+
+            // Create a thread
+            let thread: JoinHandle<Result<(), E>> = std::thread::spawn(move || {
+                // Listen for messages
+                loop {
+                    let message = relay_socket.lock().unwrap().read_message().unwrap();
+                    callback.lock().unwrap()(relay_name.clone(), message).unwrap();
+                }
+            });
+
+            threads.push(thread);
+        }
+
+        // Wait for the threads to finish
+        for thread in threads {
+            thread.join().unwrap()?;
         }
 
         Ok(())
@@ -150,7 +167,7 @@ impl Client {
     pub fn subscribe(&mut self, filters: Vec<ReqFilter>) -> Result<String, String> {
         let req = Req::new(None, filters);
         let message = Message::text(req.to_string());
-        match self.relays[0].1.send_message(&message) {
+        match self.relays[0].1.lock().unwrap().send_message(&message) {
             Ok(_) => Ok(req.subscription_id),
             Err(_) => Err("Unable to send message".to_string()),
         }
@@ -184,7 +201,7 @@ impl Client {
     ) -> Result<(), String> {
         let req = Req::new(Some(subscription_id), filters);
         let message = Message::text(req.to_string());
-        match self.relays[0].1.send_message(&message) {
+        match self.relays[0].1.lock().unwrap().send_message(&message) {
             Ok(_) => Ok(()),
             Err(_) => Err("Unable to send message".to_string()),
         }
@@ -213,7 +230,7 @@ impl Client {
     /// ```
     pub fn unsubscribe(&mut self, subscription_id: &str) -> Result<(), String> {
         let message = Message::text(json!(["CLOSE", subscription_id]).to_string());
-        match self.relays[0].1.send_message(&message) {
+        match self.relays[0].1.lock().unwrap().send_message(&message) {
             Ok(_) => Ok(()),
             Err(_) => Err("Unable to send message".to_string()),
         }
