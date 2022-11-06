@@ -16,7 +16,7 @@ This example uses [Tungstenite](https://crates.io/crates/tungstenite) for event 
 
 ```toml
 [dependencies]
-nostr_rust = "0.1"
+nostr_rust = "0.2"
 tungstenite = "0.17"
 ```
 
