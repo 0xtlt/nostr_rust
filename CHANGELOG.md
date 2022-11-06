@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.0 - NIP-02 Support
+
+- Added: `Client.get_contact_list` method
+- Added: `Client.set_contact_list` method
+- Added: `Client.add_event` method
+- Added: `Client.get_events` method
+- Added: `Client.get_events_of` method
+- Added: `ContactListTag` structure
+- Added: `ContactListTag.to_tags` method
+
 ## 0.2.0 - Architecture change
 
 - Removed: `Client.listen` function (Replaced by `Client.next_data`)
