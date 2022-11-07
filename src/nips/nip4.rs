@@ -1,8 +1,11 @@
 use crate::{events::EventPrepare, nostr_client::Client, utils::get_timestamp, Identity};
-use libaes::Cipher;
-use rand::{rngs::OsRng, Rng};
-use secp256k1::{ecdh::SharedSecret, PublicKey, SecretKey};
+use aes::cipher::{block_padding::Pkcs7, generic_array::GenericArray, BlockEncryptMut, KeyIvInit};
+use rand::{rngs::OsRng, RngCore};
+use secp256k1::{ecdh::SharedSecret, PublicKey};
 use std::str::FromStr;
+
+type Aes256CbcEnc = cbc::Encryptor<aes::Aes256>;
+// type Aes256CbcDec = cbc::Decryptor<aes::Aes256>;
 
 // Implementation of the NIP4 protocol
 // https://github.com/nostr-protocol/nips/blob/master/04.md
@@ -33,36 +36,55 @@ impl Client {
         hex_pubkey: &str,
         message: &str,
     ) -> Result<(), String> {
+        let message = message.as_bytes();
         let shared_secret = Client::get_shared_identity(identity, hex_pubkey)
             .display_secret()
             .to_string();
 
-        let iv: [u8; 16] = OsRng.gen::<[u8; 16]>();
-        let key: [u8; 32] = hex::decode(shared_secret).unwrap().try_into().unwrap();
-        let cipher = Cipher::new_256(&key);
+        let hex_key = hex::decode(shared_secret).unwrap();
 
-        // PKCS5 padding
-        let mut padded_message = message.as_bytes().to_vec();
-        let padding = 16 - (padded_message.len() % 16);
-        padded_message.extend(vec![padding as u8; padding]);
+        let mut iv = [0u8; 16];
+        OsRng.fill_bytes(&mut iv);
+        let key: &GenericArray<u8, generic_array::typenum::U32> =
+            GenericArray::from_slice(&hex_key);
 
-        let encrypted = cipher.cbc_encrypt(&iv, &padded_message);
-        let content = format!("{}?iv={}", base64::encode(encrypted), base64::encode(iv));
+        // buffer must be big enough for padded plaintext
+        let mut encrypted = vec![0u8; message.len() + 16];
 
+        // Length of the message
+        let pt_len = message.len();
+
+        // Add padding
+        // let mut padded = message.to_vec();
+        // let padding = 16 - (pt_len % 16);
+        // padded.extend(vec![padding as u8; padding]);
+
+        // encrypted[..padded.len()].copy_from_slice(&padded);
+
+        // Put the message in the buffer
+        encrypted[..pt_len].copy_from_slice(message);
+
+        let ct = Aes256CbcEnc::new(key, &iv.into())
+            .encrypt_padded_mut::<Pkcs7>(&mut encrypted, pt_len)
+            .unwrap();
+
+        let content = format!("{}?iv={}", base64::encode(ct), base64::encode(iv));
         println!("content: {}", content);
 
-        todo!("Not working yet on Nostr server side");
+        // Actually working on it
+        // Set the condition to true if you want to send the message
+        if false {
+            let event = EventPrepare {
+                pub_key: identity.public_key_str.clone(),
+                created_at: get_timestamp(),
+                kind: 4,
+                tags: vec![vec!["p".to_string(), hex_pubkey.to_string()]],
+                content,
+            }
+            .to_event(identity);
 
-        let event = EventPrepare {
-            pub_key: identity.public_key_str.clone(),
-            created_at: get_timestamp(),
-            kind: 4,
-            tags: vec![vec!["p".to_string(), hex_pubkey.to_string()]],
-            content,
+            self.publish_event(&event)?;
         }
-        .to_event(identity);
-
-        self.publish_event(&event)?;
         Ok(())
     }
 }
