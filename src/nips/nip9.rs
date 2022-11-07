@@ -34,7 +34,7 @@ impl Client {
     /// let mut client = Client::new(vec!["wss://nostr-pub.wellorder.net"]).unwrap();
     /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
     /// // Create an event
-    /// let event = publish_text_note(&identity, "Hello Nostr! :)", &[])
+    /// let event = client.publish_text_note(&identity, "Hello Nostr! :)", &[])
     ///  .unwrap();
     ///
     /// // Delete the event with a reason
