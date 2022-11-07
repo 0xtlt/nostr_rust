@@ -15,11 +15,11 @@ impl Client {
     /// let mut client = Client::new(vec!["wss://nostr-pub.wellorder.net"]).unwrap();
     /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
     /// // Create an event
-    /// let event = publish_text_note(&my_identity, "Hello Nostr! :)", &[])
+    /// let event = client.publish_text_note(&identity, "Hello Nostr! :)", &[])
     ///   .unwrap();
     ///
     /// // Delete the event
-    /// client.delete_event(&my_identity, &event.id).unwrap();
+    /// client.delete_event(&identity, &event.id).unwrap();
     /// ```
     pub fn delete_event(&mut self, identity: &Identity, event_id: &str) -> Result<Event, String> {
         self.delete_event_with_reason(identity, event_id, "")
