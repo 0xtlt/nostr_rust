@@ -41,7 +41,12 @@ impl Client {
         let key: [u8; 32] = hex::decode(shared_secret).unwrap().try_into().unwrap();
         let cipher = Cipher::new_256(&key);
 
-        let encrypted = cipher.cbc_encrypt(&iv, message.as_bytes());
+        // PKCS5 padding
+        let mut padded_message = message.as_bytes().to_vec();
+        let padding = 16 - (padded_message.len() % 16);
+        padded_message.extend(vec![padding as u8; padding]);
+
+        let encrypted = cipher.cbc_encrypt(&iv, &padded_message);
         let content = format!("{}?iv={}", base64::encode(encrypted), base64::encode(iv));
 
         println!("content: {}", content);
