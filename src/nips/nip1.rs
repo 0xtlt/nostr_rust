@@ -1,4 +1,9 @@
-use crate::{events::EventPrepare, nostr_client::Client, utils::get_timestamp, Identity};
+use crate::{
+    events::{Event, EventPrepare},
+    nostr_client::Client,
+    utils::get_timestamp,
+    Identity,
+};
 use serde_json::json;
 
 // Implementation of the NIP1 protocol
@@ -70,7 +75,7 @@ impl Client {
         identity: &Identity,
         content: &str,
         tags: &[Vec<String>],
-    ) -> Result<(), String> {
+    ) -> Result<Event, String> {
         let event = EventPrepare {
             pub_key: identity.public_key_str.clone(),
             created_at: get_timestamp(),
@@ -81,7 +86,7 @@ impl Client {
         .to_event(identity);
 
         self.publish_event(&event)?;
-        Ok(())
+        Ok(event)
     }
 
     /// Add recommended relay server
