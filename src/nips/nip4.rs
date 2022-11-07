@@ -1,11 +1,7 @@
 use crate::{events::EventPrepare, nostr_client::Client, utils::get_timestamp, Identity};
-use aes::cipher::{block_padding::Pkcs7, generic_array::GenericArray, BlockEncryptMut, KeyIvInit};
-use rand::{rngs::OsRng, RngCore};
-use secp256k1::{ecdh::SharedSecret, PublicKey};
+use magic_crypt::{MagicCrypt256, MagicCryptTrait};
+use secp256k1::{ecdh::SharedSecret, rand::random, PublicKey};
 use std::str::FromStr;
-
-type Aes256CbcEnc = cbc::Encryptor<aes::Aes256>;
-// type Aes256CbcDec = cbc::Decryptor<aes::Aes256>;
 
 // Implementation of the NIP4 protocol
 // https://github.com/nostr-protocol/nips/blob/master/04.md
@@ -36,39 +32,19 @@ impl Client {
         hex_pubkey: &str,
         message: &str,
     ) -> Result<(), String> {
-        let message = message.as_bytes();
         let shared_secret = Client::get_shared_identity(identity, hex_pubkey)
             .display_secret()
             .to_string();
 
-        let hex_key = hex::decode(shared_secret).unwrap();
+        let iv: [u8; 16] = random();
+        let iv_str = iv.iter().map(|b| format!("{:02x}", b)).collect::<String>();
 
-        let mut iv = [0u8; 16];
-        OsRng.fill_bytes(&mut iv);
-        let key: &GenericArray<u8, generic_array::typenum::U32> =
-            GenericArray::from_slice(&hex_key);
+        let magic = MagicCrypt256::new(shared_secret, Some(iv_str));
 
-        // buffer must be big enough for padded plaintext
-        let mut encrypted = vec![0u8; message.len() + 16];
+        let encrypted_message = magic.encrypt_to_base64(message);
 
-        // Length of the message
-        let pt_len = message.len();
+        let content = format!("{}?iv={}", encrypted_message, base64::encode(iv));
 
-        // Add padding
-        // let mut padded = message.to_vec();
-        // let padding = 16 - (pt_len % 16);
-        // padded.extend(vec![padding as u8; padding]);
-
-        // encrypted[..padded.len()].copy_from_slice(&padded);
-
-        // Put the message in the buffer
-        encrypted[..pt_len].copy_from_slice(message);
-
-        let ct = Aes256CbcEnc::new(key, &iv.into())
-            .encrypt_padded_mut::<Pkcs7>(&mut encrypted, pt_len)
-            .unwrap();
-
-        let content = format!("{}?iv={}", base64::encode(ct), base64::encode(iv));
         println!("content: {}", content);
 
         // Actually working on it

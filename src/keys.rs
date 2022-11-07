@@ -1,5 +1,5 @@
 use rand::rngs::OsRng;
-use secp256k1::{ecdh::SharedSecret, PublicKey, SecretKey, SECP256K1};
+use secp256k1::{PublicKey, SecretKey, SECP256K1};
 
 // TODO: implement bech32 keys
 
