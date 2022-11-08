@@ -233,4 +233,6 @@ impl Client {
 
         Ok(messages)
     }
+
+    // TODO: get a list of private messages with a list of public keys
 }
