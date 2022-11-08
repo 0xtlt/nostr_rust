@@ -1,7 +1,7 @@
 use crate::{
     events::{Event, EventPrepare},
     nostr_client::Client,
-    utils::get_timestamp,
+    utils::{get_timestamp, self},
     Identity,
 };
 use rand::Rng;
@@ -45,6 +45,7 @@ impl EventPrepare {
                 break;
             }
             self.tags.pop();
+            self.created_at = utils::get_timestamp();
         }
 
         let message = secp256k1::Message::from_hashed_data::<secp256k1::hashes::sha256::Hash>(
