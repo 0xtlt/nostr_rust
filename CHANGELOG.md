@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.0 - NIP-04 Support
+
+- Add: NIP-04 support
+- Add: `nips::nip4::decrypt` method
+- Add: `nips::nip4::encrypt` method
+- Add: `Client.get_shared_identity` method
+- Add: `Client.send_private_message` method
+
 ## 0.5.0 - NIP-09 Support
 
 - Edit: `Client.publish_text_note` method returns the Event object
