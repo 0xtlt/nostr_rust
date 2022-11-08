@@ -4,7 +4,7 @@
 // Thanks to Yuki Kishimoto for the inspiration with his module
 // https://gitlab.com/p2kishimoto/nostr-rs-sdk/-/tree/master/crates/nostr-sdk-base
 
-use crate::events::EventPrepare;
+use crate::events::{Event, EventPrepare};
 use crate::nostr_client::Client;
 use crate::utils::get_timestamp;
 use crate::Identity;
@@ -127,7 +127,7 @@ impl Client {
         identity: &Identity,
         hex_pubkey: &str,
         message: &str,
-    ) -> Result<(), Error> {
+    ) -> Result<Event, Error> {
         let x_pub_key = secp256k1::XOnlyPublicKey::from_str(hex_pubkey)?;
         let encrypted_message = encrypt(&identity.secret_key, &x_pub_key, message)?;
 
@@ -141,6 +141,6 @@ impl Client {
         .to_event(identity);
 
         self.publish_event(&event).unwrap();
-        Ok(())
+        Ok(event)
     }
 }
