@@ -58,6 +58,11 @@ pub fn get_str_keys_from_secret(secret_key: &SecretKey) -> (String, String) {
     (
         secret_key.display_secret().to_string(),
         // Remove the 2 first characters because they are "0X" and useless
-        get_public_key_from_secret(secret_key).to_string()[2..].to_string(),
+        normalize_public_key(&get_public_key_from_secret(secret_key).to_string()),
     )
+}
+
+/// Normalize a public key
+pub fn normalize_public_key(public_key: &str) -> String {
+    public_key.to_string()[2..].to_string()
 }

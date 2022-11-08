@@ -16,7 +16,7 @@ This example uses [Tungstenite](https://crates.io/crates/tungstenite) for event 
 
 ```toml
 [dependencies]
-nostr_rust = "0.5"
+nostr_rust = "0.6"
 tungstenite = "0.17"
 ```
 
@@ -116,7 +116,7 @@ fn main() {
 | 01  | ✅            | 0.1.0          | Basic protocol flow description                              |
 | 02  | ✅            | 0.3.0          | Contact List and Petnames                                    |
 | 03  | ❌            | Not supported  | OpenTimestamps Attestations for Events                       |
-| 04  | ❌            | Not supported  | Encrypted Direct Message                                     |
+| 04  | ✅            | 0.6.0          | Encrypted Direct Message                                     |
 | 05  | ❌            | Not supported  | Mapping Nostr keys to DNS-based internet identifiers         |
 | 06  | ❌            | Not supported  | Basic key derivation from mnemonic seed phrase               |
 | 07  | Not concerned | Not supported  | window.nostr capability for web browsers                     |
