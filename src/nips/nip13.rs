@@ -1,0 +1,114 @@
+use crate::{
+    events::{Event, EventPrepare},
+    nostr_client::Client,
+    utils::get_timestamp,
+    Identity,
+};
+use rand::Rng;
+use secp256k1::{KeyPair, SECP256K1};
+
+// Implementation of the NIP13 protocol
+// https://github.com/nostr-protocol/nips/blob/master/13.md
+
+impl EventPrepare {
+    pub fn count_leading_zero_bits(content_id: Vec<u8>) -> u32 {
+        let mut total: u32 = 0;
+
+        for c in content_id {
+            let bits = c.leading_zeros();
+            total += bits;
+            if bits != 8 {
+                break;
+            }
+        }
+        total
+    }
+
+    pub fn to_pow_event(
+        &mut self,
+        secret_key: &Identity,
+        difficulty: u32,
+    ) -> Result<Event, String> {
+        let mut rng = rand::thread_rng();
+        loop {
+            let nouce: u32 = rng.gen_range(0..999999);
+
+            self.tags.push(vec![
+                "nouce".to_string(),
+                nouce.to_string(),
+                difficulty.to_string(),
+            ]);
+
+            let content_id = self.get_content_id();
+            let content_id = hex::decode(content_id).map_err(|e| e.to_string())?;
+            if Self::count_leading_zero_bits(content_id) >= difficulty {
+                break;
+            }
+            self.tags.pop();
+        }
+
+        let message = secp256k1::Message::from_hashed_data::<secp256k1::hashes::sha256::Hash>(
+            self.get_content().as_bytes(),
+        );
+
+        let signature = SECP256K1
+            .sign_schnorr(
+                &message,
+                &KeyPair::from_secret_key(SECP256K1, &secret_key.secret_key),
+            )
+            .to_string();
+
+        Ok(Event {
+            id: self.get_content_id(),
+            pub_key: self.pub_key.clone(),
+            created_at: self.created_at,
+            kind: self.kind,
+            tags: self.tags.clone(),
+            content: self.content.clone(),
+            sig: signature,
+        })
+    }
+}
+
+impl Client {
+    /// Publish a text note event with Proof of Work
+    /// # Example
+    /// ```rust
+    /// use nostr_rust::{nostr_client::Client, Identity, utils::get_timestamp};
+    /// use std::str::FromStr;
+    /// let mut client = Client::new(vec!["wss://nostr-pub.wellorder.net"]).unwrap();
+    /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
+    /// let message = format!("Hello Nostr! {}", get_timestamp());
+    /// client.publish_pow_text_note(&identity, &message, &vec![], 20).unwrap();
+    /// ```
+    pub fn publish_pow_text_note(
+        &mut self,
+        identity: &Identity,
+        content: &str,
+        tags: &[Vec<String>],
+        difficulty: u32,
+    ) -> Result<Event, String> {
+        let mut event_prepare = EventPrepare {
+            pub_key: identity.public_key_str.clone(),
+            created_at: get_timestamp(),
+            kind: 1,
+            tags: tags.to_vec(),
+            content: content.to_string(),
+        };
+
+        let event = event_prepare.to_pow_event(identity, difficulty)?;
+
+        self.publish_event(&event)?;
+
+        Ok(event)
+    }
+}
+
+#[test]
+fn difficulty() {
+    let hash = hex::decode("000000000e9d97a1ab09fc381030b346cdd7a142ad57e6df0b46dc9bef6c7e2d").unwrap();
+
+    let diff = EventPrepare::count_leading_zero_bits(hash);
+
+    assert_eq!(diff, 36)
+}
