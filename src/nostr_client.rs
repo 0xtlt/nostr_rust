@@ -1,11 +1,29 @@
-use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
-
 use crate::events::Event;
 use crate::req::{Req, ReqFilter};
-use crate::websocket::SimplifiedWS;
+use crate::websocket::{self, SimplifiedWS};
 use serde_json::{json, Value};
+use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
+use thiserror::Error;
 use tungstenite::Message;
+
+#[derive(Error, Debug, Eq, PartialEq)]
+pub enum ClientError {
+    #[error("Error while trying to connect to the websocket server")]
+    WSError(websocket::SimplifiedWSError),
+
+    #[error("Already subscribed to the event")]
+    AlreadySubscribed,
+
+    #[error("Relay does not exist")]
+    RelayDoesNotExist,
+}
+
+impl From<websocket::SimplifiedWSError> for ClientError {
+    fn from(err: websocket::SimplifiedWSError) -> Self {
+        Self::WSError(err)
+    }
+}
 
 /// Nostr Client
 pub struct Client {
@@ -21,7 +39,7 @@ impl Client {
     /// use nostr_rust::nostr_client::Client;
     /// let client = Client::new(vec!["wss://nostr-pub.wellorder.net"]).unwrap();
     /// ```
-    pub fn new(default_relays: Vec<&str>) -> Result<Self, String> {
+    pub fn new(default_relays: Vec<&str>) -> Result<Self, ClientError> {
         let mut client = Self {
             relays: HashMap::new(),
             subscriptions: HashMap::new(),
@@ -43,15 +61,15 @@ impl Client {
     /// let mut client = Client::new(vec!["wss://nostr-pub.wellorder.net"]).unwrap();
     /// client.add_relay("wss://relay.damus.io").unwrap();
     /// ```
-    pub fn add_relay(&mut self, relay: &str) -> Result<(), String> {
+    pub fn add_relay(&mut self, relay: &str) -> Result<(), ClientError> {
         let client = match SimplifiedWS::new(relay) {
             Ok(client) => client,
-            Err(err) => return Err(format!("Error connecting to relay: {}", err)),
+            Err(err) => return Err(ClientError::WSError(err)),
         };
 
         // Check if relay is already added
         if self.relays.contains_key(relay) {
-            return Err(format!("Relay {} already added", relay));
+            return Err(ClientError::AlreadySubscribed);
         }
 
         self.relays
@@ -67,14 +85,10 @@ impl Client {
     /// let mut client = Client::new(vec!["wss://nostr-pub.wellorder.net"]).unwrap();
     /// client.remove_relay("wss://nostr-pub.wellorder.net").unwrap();
     /// ```
-    pub fn remove_relay(&mut self, relay: &str) -> Result<(), String> {
-        println!("Removing relay {}", relay);
+    pub fn remove_relay(&mut self, relay: &str) -> Result<(), ClientError> {
         if !self.relays.contains_key(relay) {
-            println!("Relay {} not found", relay);
-            return Err(format!("Relay {} not found", relay));
+            return Err(ClientError::RelayDoesNotExist);
         }
-
-        println!("Removing relay {}", relay);
 
         // Close the connection
         self.relays
@@ -90,7 +104,7 @@ impl Client {
     }
 
     /// Publish a Nostr event
-    pub fn publish_event(&mut self, event: &Event) -> Result<(), String> {
+    pub fn publish_event(&mut self, event: &Event) -> Result<(), ClientError> {
         let json_stringified = json!(["EVENT", event]).to_string();
         let message = Message::text(json_stringified);
 
@@ -151,7 +165,7 @@ impl Client {
     /// // Wait 3s for the thread to finish
     /// std::thread::sleep(std::time::Duration::from_secs(3));
     /// ```
-    pub fn next_data(&mut self) -> Result<Vec<(String, tungstenite::Message)>, String> {
+    pub fn next_data(&mut self) -> Result<Vec<(String, tungstenite::Message)>, ClientError> {
         let mut events: Vec<(String, tungstenite::Message)> = Vec::new();
 
         for (relay_name, socket) in self.relays.iter() {
@@ -182,7 +196,7 @@ impl Client {
     /// }])
     /// .unwrap();
     /// ```
-    pub fn subscribe(&mut self, filters: Vec<ReqFilter>) -> Result<String, String> {
+    pub fn subscribe(&mut self, filters: Vec<ReqFilter>) -> Result<String, ClientError> {
         let req = Req::new(None, filters);
         let message = Message::text(req.to_string());
 
@@ -219,7 +233,7 @@ impl Client {
         &mut self,
         subscription_id: &str,
         filters: Vec<ReqFilter>,
-    ) -> Result<(), String> {
+    ) -> Result<(), ClientError> {
         let req = Req::new(Some(subscription_id), filters);
         let message = Message::text(req.to_string());
 
@@ -252,7 +266,7 @@ impl Client {
     /// .unwrap();
     /// client.unsubscribe(&subscription_id).unwrap();
     /// ```
-    pub fn unsubscribe(&mut self, subscription_id: &str) -> Result<(), String> {
+    pub fn unsubscribe(&mut self, subscription_id: &str) -> Result<(), ClientError> {
         let message = Message::text(json!(["CLOSE", subscription_id]).to_string());
 
         for relay in self.relays.values() {
@@ -303,7 +317,7 @@ impl Client {
     ///    limit: Some(1),
     /// }]).unwrap();
     /// ```
-    pub fn get_events_of(&mut self, filters: Vec<ReqFilter>) -> Result<Vec<Event>, String> {
+    pub fn get_events_of(&mut self, filters: Vec<ReqFilter>) -> Result<Vec<Event>, ClientError> {
         let mut events: Vec<Event> = Vec::new();
 
         // Subscribe

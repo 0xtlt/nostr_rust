@@ -1,4 +1,23 @@
-use crate::{events::EventPrepare, nostr_client::Client, utils::get_timestamp, Identity};
+use thiserror::Error;
+
+use crate::{
+    events::{Event, EventPrepare},
+    nostr_client::{Client, ClientError},
+    utils::get_timestamp,
+    Identity,
+};
+
+#[derive(Error, Debug, Eq, PartialEq)]
+pub enum NIP25Error {
+    #[error("The client has an error")]
+    ClientError(ClientError),
+}
+
+impl From<ClientError> for NIP25Error {
+    fn from(err: ClientError) -> Self {
+        Self::ClientError(err)
+    }
+}
 
 impl Client {
     /// React to an event
@@ -23,7 +42,7 @@ impl Client {
         event_id: &str,
         event_pub_key: &str,
         reaction: &str,
-    ) -> Result<(), String> {
+    ) -> Result<Event, NIP25Error> {
         let event = EventPrepare {
             pub_key: identity.public_key_str.clone(),
             created_at: get_timestamp(),
@@ -37,7 +56,7 @@ impl Client {
         .to_event(identity);
 
         self.publish_event(&event)?;
-        Ok(())
+        Ok(event)
     }
 
     /// Add a like to an event
@@ -55,7 +74,7 @@ impl Client {
         identity: &Identity,
         event_id: &str,
         event_pub_key: &str,
-    ) -> Result<(), String> {
+    ) -> Result<Event, NIP25Error> {
         self.react_to(identity, event_id, event_pub_key, "+")
     }
 
@@ -74,7 +93,7 @@ impl Client {
         identity: &Identity,
         event_id: &str,
         event_pub_key: &str,
-    ) -> Result<(), String> {
+    ) -> Result<Event, NIP25Error> {
         self.react_to(identity, event_id, event_pub_key, "-")
     }
 }

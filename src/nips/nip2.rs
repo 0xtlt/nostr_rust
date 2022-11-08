@@ -1,9 +1,26 @@
 use crate::{
-    events::EventPrepare, nostr_client::Client, req::ReqFilter, utils::get_timestamp, Identity,
+    events::EventPrepare,
+    nostr_client::{Client, ClientError},
+    req::ReqFilter,
+    utils::get_timestamp,
+    Identity,
 };
+use thiserror::Error;
 
 // Implementation of the NIP2 protocol
 // https://github.com/nostr-protocol/nips/blob/master/02.md
+
+#[derive(Error, Debug, Eq, PartialEq)]
+pub enum NIP2Error {
+    #[error("The client has an error")]
+    ClientError(ClientError),
+}
+
+impl From<ClientError> for NIP2Error {
+    fn from(err: ClientError) -> Self {
+        Self::ClientError(err)
+    }
+}
 
 #[derive(Debug, Clone)]
 pub struct ContactListTag {
@@ -56,7 +73,7 @@ impl Client {
         &mut self,
         identity: &Identity,
         contact_list: Vec<ContactListTag>,
-    ) -> Result<(), String> {
+    ) -> Result<(), NIP2Error> {
         let event = EventPrepare {
             pub_key: identity.public_key_str.clone(),
             created_at: get_timestamp(),
@@ -82,7 +99,7 @@ impl Client {
     /// let mut client = Client::new(vec!["wss://nostr-pub.wellorder.net"]).unwrap();
     /// let contact_list = client.get_contact_list("884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6").unwrap();
     /// ```
-    pub fn get_contact_list(&mut self, pubkey: &str) -> Result<Vec<ContactListTag>, String> {
+    pub fn get_contact_list(&mut self, pubkey: &str) -> Result<Vec<ContactListTag>, NIP2Error> {
         let mut contact_list: Vec<ContactListTag> = vec![];
 
         let events = self.get_events_of(vec![ReqFilter {

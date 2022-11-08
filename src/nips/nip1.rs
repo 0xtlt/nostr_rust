@@ -1,13 +1,29 @@
 use crate::{
     events::{Event, EventPrepare},
-    nostr_client::Client,
+    nostr_client::{Client, ClientError},
     utils::get_timestamp,
     Identity,
 };
 use serde_json::json;
+use thiserror::Error;
 
 // Implementation of the NIP1 protocol
 // https://github.com/nostr-protocol/nips/blob/master/01.md
+
+#[derive(Error, Debug, Eq, PartialEq)]
+pub enum NIP1Error {
+    #[error(r#"No metadata given"#)]
+    NoMetadata,
+
+    #[error("The client has an error")]
+    ClientError(ClientError),
+}
+
+impl From<ClientError> for NIP1Error {
+    fn from(err: ClientError) -> Self {
+        Self::ClientError(err)
+    }
+}
 
 impl Client {
     /// Set the metadata of the identity
@@ -28,11 +44,11 @@ impl Client {
         name: Option<&str>,
         about: Option<&str>,
         picture: Option<&str>,
-    ) -> Result<(), String> {
+    ) -> Result<Event, NIP1Error> {
         let mut json_body = json!({});
 
         if name.is_none() && about.is_none() && picture.is_none() {
-            return Err("No metadata provided".to_string());
+            return Err(NIP1Error::NoMetadata);
         }
 
         if let Some(name) = name {
@@ -57,7 +73,7 @@ impl Client {
         .to_event(identity);
 
         self.publish_event(&event)?;
-        Ok(())
+        Ok(event)
     }
 
     /// Publish a text note (text_note) event
@@ -75,7 +91,7 @@ impl Client {
         identity: &Identity,
         content: &str,
         tags: &[Vec<String>],
-    ) -> Result<Event, String> {
+    ) -> Result<Event, NIP1Error> {
         let event = EventPrepare {
             pub_key: identity.public_key_str.clone(),
             created_at: get_timestamp(),
@@ -104,7 +120,7 @@ impl Client {
         &mut self,
         identity: &Identity,
         relay: &str,
-    ) -> Result<(), String> {
+    ) -> Result<Event, NIP1Error> {
         let event = EventPrepare {
             pub_key: identity.public_key_str.clone(),
             created_at: get_timestamp(),
@@ -115,6 +131,6 @@ impl Client {
         .to_event(identity);
 
         self.publish_event(&event)?;
-        Ok(())
+        Ok(event)
     }
 }
