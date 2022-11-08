@@ -6,6 +6,7 @@
 
 use crate::events::{Event, EventPrepare};
 use crate::nostr_client::Client;
+use crate::req::ReqFilter;
 use crate::utils::get_timestamp;
 use crate::Identity;
 use aes::{
@@ -14,17 +15,21 @@ use aes::{
 };
 use base64::{decode, encode};
 use cbc::{Decryptor, Encryptor};
-use secp256k1::{
-    ecdh::{self, SharedSecret},
-    rand::random,
-    PublicKey, SecretKey, XOnlyPublicKey,
-};
+use secp256k1::{ecdh, rand::random, PublicKey, SecretKey, XOnlyPublicKey};
+use serde::{Deserialize, Serialize};
 use std::convert::From;
 use std::str::FromStr;
 use thiserror::Error;
 
 type Aes256CbcEnc = Encryptor<Aes256>;
 type Aes256CbcDec = Decryptor<Aes256>;
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct PrivateMessage {
+    pub author: String,
+    pub content: String,
+    pub timestamp: u64,
+}
 
 #[derive(Error, Debug, Eq, PartialEq)]
 pub enum Error {
@@ -103,13 +108,6 @@ fn from_schnorr_pk(schnorr_pk: &XOnlyPublicKey) -> Result<PublicKey, Error> {
 }
 
 impl Client {
-    pub fn get_shared_identity(identity: &Identity, hex_pubkey: &str) -> SharedSecret {
-        SharedSecret::new(
-            &PublicKey::from_str(&format!("02{}", hex_pubkey)).unwrap(),
-            &identity.secret_key,
-        )
-    }
-
     /// Send private message to a public key
     ///
     /// # Example
@@ -142,5 +140,97 @@ impl Client {
 
         self.publish_event(&event).unwrap();
         Ok(event)
+    }
+
+    /// Get private events (messages) with a public key
+    ///
+    /// # Example
+    /// ```rust
+    /// use nostr_rust::{nostr_client::Client, Identity};
+    /// use std::str::FromStr;
+    /// let mut client = Client::new(vec!["wss://nostr-pub.wellorder.net"]).unwrap();
+    /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
+    /// let pubkey = "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6";
+    /// let messages = client.get_private_events_with(&identity, pubkey, 10).unwrap();
+    /// ```
+    pub fn get_private_events_with(
+        &mut self,
+        identity: &Identity,
+        hex_pubkey: &str,
+        limit: u64,
+    ) -> Result<Vec<Event>, Error> {
+        let events = self
+            .get_events_of(vec![
+                ReqFilter {
+                    ids: None,
+                    authors: Some(vec![identity.public_key_str.clone()]),
+                    kinds: Some(vec![4]),
+                    e: None,
+                    p: Some(vec![hex_pubkey.to_string()]),
+                    since: None,
+                    until: None,
+                    limit: Some(limit),
+                },
+                ReqFilter {
+                    ids: None,
+                    authors: Some(vec![hex_pubkey.to_string()]),
+                    kinds: Some(vec![4]),
+                    e: None,
+                    p: Some(vec![identity.public_key_str.clone()]),
+                    since: None,
+                    until: None,
+                    limit: Some(limit),
+                },
+            ])
+            .unwrap();
+
+        Ok(events)
+    }
+
+    /// Get private messages with a public key
+    ///
+    /// # Example
+    /// ```rust
+    /// use nostr_rust::{nostr_client::Client, Identity};
+    /// use std::str::FromStr;
+    /// let mut client = Client::new(vec!["wss://nostr-pub.wellorder.net"]).unwrap();
+    /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
+    /// let pubkey = "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6";
+    /// let messages = client.get_private_messages_with(&identity, pubkey, 10).unwrap();
+    /// ```
+    pub fn get_private_messages_with(
+        &mut self,
+        identity: &Identity,
+        hex_pubkey: &str,
+        limit: u64,
+    ) -> Result<Vec<PrivateMessage>, Error> {
+        let x_pub_key = secp256k1::XOnlyPublicKey::from_str(hex_pubkey)?;
+        let events =
+            self.get_private_events_with(identity, x_pub_key.to_string().as_str(), limit)?;
+        let mut messages: Vec<PrivateMessage> = vec![];
+
+        for event in events {
+            let decrypted_message = match decrypt(&identity.secret_key, &x_pub_key, &event.content)
+            {
+                Ok(message) => message,
+                Err(_) => continue,
+            };
+
+            let private_message = PrivateMessage {
+                author: event.pub_key,
+                content: decrypted_message,
+                timestamp: event.created_at,
+            };
+
+            messages.push(private_message);
+        }
+
+        // Sort messages by timestamp
+        messages.sort_by(|a, b| a.timestamp.cmp(&b.timestamp));
+
+        // Reverse order
+        messages.reverse();
+
+        Ok(messages)
     }
 }
