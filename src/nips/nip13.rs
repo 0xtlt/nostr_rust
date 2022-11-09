@@ -63,7 +63,7 @@ impl EventPrepare {
     /// use std::str::FromStr;
     /// use nostr_rust::{events::EventPrepare, Identity};
     ///
-    /// let event = EventPrepare {
+    /// let mut event = EventPrepare {
     ///  pub_key: env!("PUBLIC_KEY").to_string(),
     ///  created_at: 0, // Don't use this in production
     ///  kind: 0,
@@ -73,14 +73,14 @@ impl EventPrepare {
     ///
     /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
     /// let difficulty = 10;
-    /// let nostr_event = event.to_pow_event(&identity, difficulty);
+    /// let nostr_event = event.to_pow_event(&identity, difficulty).unwrap();
     /// let event_id = hex::decode(nostr_event.id).unwrap();
-    /// let event_difficulty = count_leading_zero_bits(event_id);
-    /// assert_et!(event_difficulty, difficulty);
+    /// let event_difficulty = EventPrepare::count_leading_zero_bits(event_id);
+    /// assert!(event_difficulty >= difficulty);
     /// assert_eq!(nostr_event.content, "content");
     /// assert_eq!(nostr_event.kind, 0);
     /// assert_eq!(nostr_event.tags.len(), 1);
-    /// assert_eq!(nostr_event.created_at, 0);
+    /// assert!(nostr_event.created_at > 0);
     /// assert_eq!(nostr_event.pub_key, env!("PUBLIC_KEY"));
     /// assert_eq!(nostr_event.sig.len(), 128);
     /// ```
