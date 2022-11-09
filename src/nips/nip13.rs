@@ -1,7 +1,7 @@
 use crate::{
     events::{Event, EventPrepare},
     nostr_client::Client,
-    utils::{get_timestamp, self},
+    utils::{self, get_timestamp},
     Identity,
 };
 use rand::Rng;
@@ -104,12 +104,17 @@ impl Client {
         Ok(event)
     }
 }
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-#[test]
-fn difficulty() {
-    let hash = hex::decode("000000000e9d97a1ab09fc381030b346cdd7a142ad57e6df0b46dc9bef6c7e2d").unwrap();
+    #[test]
+    fn difficulty() {
+        let hash = hex::decode("000000000e9d97a1ab09fc381030b346cdd7a142ad57e6df0b46dc9bef6c7e2d")
+            .unwrap();
 
-    let diff = EventPrepare::count_leading_zero_bits(hash);
+        let diff = EventPrepare::count_leading_zero_bits(hash);
 
-    assert_eq!(diff, 36)
+        assert_eq!(diff, 36)
+    }
 }
