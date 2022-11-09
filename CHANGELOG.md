@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.0 - Errors and SSL
+
+- Edit: `OpenSSL` dependency replaced by `rustls`
+- Edit: Errors are now enums
+
 ## 0.6.0 - NIP-04 Support
 
 - Add: NIP-04 support

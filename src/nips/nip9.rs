@@ -1,9 +1,22 @@
 use crate::{
     events::{Event, EventPrepare},
-    nostr_client::Client,
+    nostr_client::{Client, ClientError},
     utils::get_timestamp,
     Identity,
 };
+use thiserror::Error;
+
+#[derive(Error, Debug, Eq, PartialEq)]
+pub enum NIP9Error {
+    #[error("The client has an error")]
+    ClientError(ClientError),
+}
+
+impl From<ClientError> for NIP9Error {
+    fn from(err: ClientError) -> Self {
+        Self::ClientError(err)
+    }
+}
 
 impl Client {
     /// Delete an event
@@ -21,7 +34,11 @@ impl Client {
     /// // Delete the event
     /// client.delete_event(&identity, &event.id).unwrap();
     /// ```
-    pub fn delete_event(&mut self, identity: &Identity, event_id: &str) -> Result<Event, String> {
+    pub fn delete_event(
+        &mut self,
+        identity: &Identity,
+        event_id: &str,
+    ) -> Result<Event, NIP9Error> {
         self.delete_event_with_reason(identity, event_id, "")
     }
 
@@ -45,7 +62,7 @@ impl Client {
         identity: &Identity,
         event_id: &str,
         reason: &str,
-    ) -> Result<Event, String> {
+    ) -> Result<Event, NIP9Error> {
         let event = EventPrepare {
             pub_key: identity.public_key_str.clone(),
             created_at: get_timestamp(),
