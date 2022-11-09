@@ -1,11 +1,11 @@
 use crate::events::Event;
 use crate::req::{Req, ReqFilter};
 use crate::websocket::{self, SimplifiedWS};
+use crate::Message;
 use serde_json::{json, Value};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use thiserror::Error;
-use tungstenite::Message;
 
 #[derive(Error, Debug, Eq, PartialEq)]
 pub enum ClientError {

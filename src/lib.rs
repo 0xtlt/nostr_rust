@@ -9,6 +9,8 @@ pub mod req;
 pub mod utils;
 pub mod websocket;
 
+pub type Message = tungstenite::Message;
+
 /// Nostr Identity with secret and public keys
 pub struct Identity {
     pub secret_key: SecretKey,

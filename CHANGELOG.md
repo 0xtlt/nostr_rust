@@ -4,6 +4,7 @@
 
 - Edit: `OpenSSL` dependency replaced by `rustls`
 - Edit: Errors are now enums
+- Edit: Added `Message` type
 
 ## 0.6.0 - NIP-04 Support
 
