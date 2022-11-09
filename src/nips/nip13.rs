@@ -1,14 +1,37 @@
 use crate::{
     events::{Event, EventPrepare},
-    nostr_client::Client,
+    nostr_client::{Client, ClientError},
     utils::{self, get_timestamp},
     Identity,
 };
+use hex::FromHexError;
 use rand::Rng;
 use secp256k1::{KeyPair, SECP256K1};
+use thiserror::Error;
 
 // Implementation of the NIP13 protocol
 // https://github.com/nostr-protocol/nips/blob/master/13.md
+
+#[derive(Error, Debug, PartialEq)]
+pub enum NIP13Error {
+    #[error("Content Id is invalid")]
+    InvalidContentId(FromHexError),
+
+    #[error("The client has an error")]
+    ClientError(ClientError),
+}
+
+impl From<ClientError> for NIP13Error {
+    fn from(err: ClientError) -> Self {
+        Self::ClientError(err)
+    }
+}
+
+impl From<FromHexError> for NIP13Error {
+    fn from(err: FromHexError) -> Self {
+        Self::InvalidContentId(err)
+    }
+}
 
 impl EventPrepare {
     pub fn count_leading_zero_bits(content_id: Vec<u8>) -> u32 {
@@ -28,7 +51,7 @@ impl EventPrepare {
         &mut self,
         secret_key: &Identity,
         difficulty: u32,
-    ) -> Result<Event, String> {
+    ) -> Result<Event, NIP13Error> {
         let mut rng = rand::thread_rng();
         loop {
             let nouce: u32 = rng.gen_range(0..999999);
@@ -40,10 +63,12 @@ impl EventPrepare {
             ]);
 
             let content_id = self.get_content_id();
-            let content_id = hex::decode(content_id).map_err(|e| e.to_string())?;
+            let content_id = hex::decode(content_id)?;
+
             if Self::count_leading_zero_bits(content_id) >= difficulty {
                 break;
             }
+
             self.tags.pop();
             self.created_at = utils::get_timestamp();
         }
@@ -80,7 +105,7 @@ impl Client {
     /// let mut client = Client::new(vec!["wss://nostr-pub.wellorder.net"]).unwrap();
     /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
     /// let message = format!("Hello Nostr! {}", get_timestamp());
-    /// client.publish_pow_text_note(&identity, &message, &vec![], 20).unwrap();
+    /// client.publish_pow_text_note(&identity, &message, &vec![], 10).unwrap();
     /// ```
     pub fn publish_pow_text_note(
         &mut self,
@@ -88,7 +113,7 @@ impl Client {
         content: &str,
         tags: &[Vec<String>],
         difficulty: u32,
-    ) -> Result<Event, String> {
+    ) -> Result<Event, NIP13Error> {
         let mut event_prepare = EventPrepare {
             pub_key: identity.public_key_str.clone(),
             created_at: get_timestamp(),
