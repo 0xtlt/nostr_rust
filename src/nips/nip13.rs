@@ -34,6 +34,16 @@ impl From<FromHexError> for NIP13Error {
 }
 
 impl EventPrepare {
+    /// Counts leading zero bits to calculate PoW difficulty
+    /// # Example
+    /// ```rust
+    /// use nostr_rust::{events::EventPrepare};
+    /// let hash = hex::decode("000000000e9d97a1ab09fc381030b346cdd7a142ad57e6df0b46dc9bef6c7e2d")
+    ///        .unwrap();
+    ///
+    /// let diff = EventPrepare::count_leading_zero_bits(hash);
+    /// assert_eq!(diff, 36)
+    /// ```
     pub fn count_leading_zero_bits(content_id: Vec<u8>) -> u32 {
         let mut total: u32 = 0;
 
@@ -47,6 +57,33 @@ impl EventPrepare {
         total
     }
 
+    /// Transfrom event to NostrEvent with Proof of Work
+    /// # Example
+    /// ```rust
+    /// use std::str::FromStr;
+    /// use nostr_rust::{events::EventPrepare, Identity};
+    ///
+    /// let event = EventPrepare {
+    ///  pub_key: env!("PUBLIC_KEY").to_string(),
+    ///  created_at: 0, // Don't use this in production
+    ///  kind: 0,
+    ///  tags: vec![],
+    ///  content: "content".to_string(),
+    /// };
+    ///
+    /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
+    /// let difficulty = 10;
+    /// let nostr_event = event.to_pow_event(&identity, difficulty);
+    /// let event_id = hex::decode(nostr_event.id).unwrap();
+    /// let event_diffculty = count_leading_zero_bits(event_id);
+    /// assert_gt!(event_diffculty, difficulty);
+    /// assert_eq!(nostr_event.content, "content");
+    /// assert_eq!(nostr_event.kind, 0);
+    /// assert_eq!(nostr_event.tags.len(), 1);
+    /// assert_eq!(nostr_event.created_at, 0);
+    /// assert_eq!(nostr_event.pub_key, env!("PUBLIC_KEY"));
+    /// assert_eq!(nostr_event.sig.len(), 128);
+    /// ```
     pub fn to_pow_event(
         &mut self,
         secret_key: &Identity,
@@ -127,19 +164,5 @@ impl Client {
         self.publish_event(&event)?;
 
         Ok(event)
-    }
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn difficulty() {
-        let hash = hex::decode("000000000e9d97a1ab09fc381030b346cdd7a142ad57e6df0b46dc9bef6c7e2d")
-            .unwrap();
-
-        let diff = EventPrepare::count_leading_zero_bits(hash);
-
-        assert_eq!(diff, 36)
     }
 }
