@@ -14,7 +14,7 @@ An ergonomic, Nostr API Client for Rust.
 
 ```toml
 [dependencies]
-nostr_rust = "0.7"
+nostr_rust = "0.8"
 ```
 
 And then the code:

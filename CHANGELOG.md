@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.8.0 - NIP-13 Support
+
+- Add: `nips::nip13::NIP13Error` enum
+- Add: `EventPrepare::count_leading_zero_bits` method
+- Add: `EventPrepare.to_pow_event` method
+- Add: `Client.publish_pow_text_note` method
+
 ## 0.7.0 - Errors and SSL
 
 - Edit: `OpenSSL` dependency replaced by `rustls`
