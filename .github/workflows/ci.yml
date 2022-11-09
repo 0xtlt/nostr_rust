@@ -2,7 +2,6 @@ name: CI
 
 on:
   pull_request_target:
-    types: [opened, converted_to_draft]
   workflow_call:
   push:
     branches:
