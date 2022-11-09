@@ -122,7 +122,7 @@ fn main() {
 | 10  | ❌            | Not supported  | Conventions for clients' use of e and p tags in text events. |
 | 11  | ❌            | Not supported  | Relay Information Document                                   |
 | 12  | ❌            | Not supported  | Generic Tag Queries                                          |
-| 13  | ❌            | Not supported  | Proof of Work                                                |
+| 13  | ✅            | 0.8.0          | Proof of Work                                                |
 | 14  | ❌            | Not supported  | Subject tag in text events.                                  |
 | 15  | ❌            | Not supported  | End of Stored Events Notice                                  |
 | 16  | ❌            | Not supported  | Event Treatment                                              |

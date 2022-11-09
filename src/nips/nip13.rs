@@ -57,7 +57,7 @@ impl EventPrepare {
         total
     }
 
-    /// Transfrom event to NostrEvent with Proof of Work
+    /// Transform event to NostrEvent with Proof of Work
     /// # Example
     /// ```rust
     /// use std::str::FromStr;
@@ -75,8 +75,8 @@ impl EventPrepare {
     /// let difficulty = 10;
     /// let nostr_event = event.to_pow_event(&identity, difficulty);
     /// let event_id = hex::decode(nostr_event.id).unwrap();
-    /// let event_diffculty = count_leading_zero_bits(event_id);
-    /// assert_gt!(event_diffculty, difficulty);
+    /// let event_difficulty = count_leading_zero_bits(event_id);
+    /// assert_et!(event_difficulty, difficulty);
     /// assert_eq!(nostr_event.content, "content");
     /// assert_eq!(nostr_event.kind, 0);
     /// assert_eq!(nostr_event.tags.len(), 1);
@@ -91,11 +91,11 @@ impl EventPrepare {
     ) -> Result<Event, NIP13Error> {
         let mut rng = rand::thread_rng();
         loop {
-            let nouce: u32 = rng.gen_range(0..999999);
+            let nonce: u32 = rng.gen_range(0..999999);
 
             self.tags.push(vec![
-                "nouce".to_string(),
-                nouce.to_string(),
+                "nonce".to_string(),
+                nonce.to_string(),
                 difficulty.to_string(),
             ]);
 
