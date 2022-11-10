@@ -6,7 +6,7 @@
 [![CI](https://github.com/0xtlt/nostr_rust/actions/workflows/ci.yml/badge.svg)](https://github.com/0xtlt/nostr_rust/actions/workflows/ci.yml)
 [![Issues](https://img.shields.io/github/issues/0xtlt/nostr_rust)](https://img.shields.io/github/issues/0xtlt/nostr_rust)
 
-An ergonomic, Nostr API Client for Rust.
+An ergonomic, [Nostr](https://github.com/nostr-protocol/nostr) API Client for Rust.
 
 - [Changelog](CHANGELOG.md)
 
@@ -110,25 +110,25 @@ fn main() {
 
 | NIP | Supported     | Client Version | Description                                                  |
 | --- | ------------- | -------------- | ------------------------------------------------------------ |
-| 01  | ✅            | 0.1.0          | Basic protocol flow description                              |
-| 02  | ✅            | 0.3.0          | Contact List and Petnames                                    |
-| 03  | ❌            | Not supported  | OpenTimestamps Attestations for Events                       |
-| 04  | ✅            | 0.6.0          | Encrypted Direct Message                                     |
-| 05  | ❌            | Not supported  | Mapping Nostr keys to DNS-based internet identifiers         |
-| 06  | ❌            | Not supported  | Basic key derivation from mnemonic seed phrase               |
-| 07  | Not concerned | Not supported  | window.nostr capability for web browsers                     |
-| 08  | ❌            | Not supported  | Handling Mentions                                            |
-| 09  | ✅            | 0.5.0          | Event Deletion                                               |
-| 10  | ❌            | Not supported  | Conventions for clients' use of e and p tags in text events. |
-| 11  | ❌            | Not supported  | Relay Information Document                                   |
-| 12  | ❌            | Not supported  | Generic Tag Queries                                          |
-| 13  | ✅            | 0.8.0          | Proof of Work                                                |
-| 14  | ❌            | Not supported  | Subject tag in text events.                                  |
-| 15  | ❌            | Not supported  | End of Stored Events Notice                                  |
-| 16  | ❌            | Not supported  | Event Treatment                                              |
-| 22  | ❌            | Not supported  | Event created_at Limits                                      |
-| 25  | ✅            | 0.4.0          | Reactions                                                    |
-| 28  | ❌            | Not supported  | Public Chat                                                  |
+| [01](https://github.com/nostr-protocol/nips/blob/master/01.md)  | ✅            | 0.1.0          | Basic protocol flow description                              |
+| [02](https://github.com/nostr-protocol/nips/blob/master/02.md)  | ✅            | 0.3.0          | Contact List and Petnames                                    |
+| [03](https://github.com/nostr-protocol/nips/blob/master/03.md)  | ❌            | Not supported  | OpenTimestamps Attestations for Events                       |
+| [04](https://github.com/nostr-protocol/nips/blob/master/04.md)  | ✅            | 0.6.0          | Encrypted Direct Message                                     |
+| [05](https://github.com/nostr-protocol/nips/blob/master/05.md)  | ❌            | Not supported  | Mapping Nostr keys to DNS-based internet identifiers         |
+| [06](https://github.com/nostr-protocol/nips/blob/master/06.md) | ❌            | Not supported  | Basic key derivation from mnemonic seed phrase               |
+| [07](https://github.com/nostr-protocol/nips/blob/master/07.md)  | Not concerned | Not supported  | window.nostr capability for web browsers                     |
+| [08](https://github.com/nostr-protocol/nips/blob/master/08.md)  | ❌            | Not supported  | Handling Mentions                                            |
+| [09](https://github.com/nostr-protocol/nips/blob/master/09.md)  | ✅            | 0.5.0          | Event Deletion                                               |
+| [10](https://github.com/nostr-protocol/nips/blob/master/10.md)  | ❌            | Not supported  | Conventions for clients' use of e and p tags in text events. |
+| [11](https://github.com/nostr-protocol/nips/blob/master/11.md)  | ❌            | Not supported  | Relay Information Document                                   |
+| [12](https://github.com/nostr-protocol/nips/blob/master/12.md)  | ❌            | Not supported  | Generic Tag Queries                                          |
+| [13](https://github.com/nostr-protocol/nips/blob/master/13.md)  | ✅            | 0.8.0          | Proof of Work                                                |
+| [14](https://github.com/nostr-protocol/nips/blob/master/14.md)  | ❌            | Not supported  | Subject tag in text events.                                  |
+| [15](https://github.com/nostr-protocol/nips/blob/master/15.md)  | ❌            | Not supported  | End of Stored Events Notice                                  |
+| [16](https://github.com/nostr-protocol/nips/blob/master/16.md)  | ❌            | Not supported  | Event Treatment                                              |
+| [22](https://github.com/nostr-protocol/nips/blob/master/22.md)  | ❌            | Not supported  | Event created_at Limits                                      |
+| [25](https://github.com/nostr-protocol/nips/blob/master/25.md)  | ✅            | 0.4.0          | Reactions                                                    |
+| [28](https://github.com/nostr-protocol/nips/blob/master/18.md)  | ❌            | Not supported  | Public Chat                                                  |
 
 ## License
 
