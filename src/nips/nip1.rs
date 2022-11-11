@@ -44,6 +44,7 @@ impl Client {
         name: Option<&str>,
         about: Option<&str>,
         picture: Option<&str>,
+        difficulty_target: u16,
     ) -> Result<Event, NIP1Error> {
         let mut json_body = json!({});
 
@@ -70,7 +71,7 @@ impl Client {
             tags: vec![],
             content: json_body.to_string(),
         }
-        .to_event(identity);
+        .to_event(identity, difficulty_target);
 
         self.publish_event(&event)?;
         Ok(event)
@@ -91,6 +92,7 @@ impl Client {
         identity: &Identity,
         content: &str,
         tags: &[Vec<String>],
+        difficulty_target: u16,
     ) -> Result<Event, NIP1Error> {
         let event = EventPrepare {
             pub_key: identity.public_key_str.clone(),
@@ -99,7 +101,7 @@ impl Client {
             tags: tags.to_vec(),
             content: content.to_string(),
         }
-        .to_event(identity);
+        .to_event(identity, difficulty_target);
 
         self.publish_event(&event)?;
         Ok(event)
@@ -120,6 +122,7 @@ impl Client {
         &mut self,
         identity: &Identity,
         relay: &str,
+        difficulty_target: u16,
     ) -> Result<Event, NIP1Error> {
         let event = EventPrepare {
             pub_key: identity.public_key_str.clone(),
@@ -128,7 +131,7 @@ impl Client {
             tags: vec![],
             content: relay.to_string(),
         }
-        .to_event(identity);
+        .to_event(identity, difficulty_target);
 
         self.publish_event(&event)?;
         Ok(event)

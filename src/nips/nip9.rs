@@ -38,8 +38,9 @@ impl Client {
         &mut self,
         identity: &Identity,
         event_id: &str,
+        difficulty_target: u16,
     ) -> Result<Event, NIP9Error> {
-        self.delete_event_with_reason(identity, event_id, "")
+        self.delete_event_with_reason(identity, event_id, "", difficulty_target)
     }
 
     /// Delete an event with a reason
@@ -62,6 +63,7 @@ impl Client {
         identity: &Identity,
         event_id: &str,
         reason: &str,
+        difficulty_target: u16,
     ) -> Result<Event, NIP9Error> {
         let event = EventPrepare {
             pub_key: identity.public_key_str.clone(),
@@ -70,7 +72,7 @@ impl Client {
             tags: vec![vec!["e".to_string(), event_id.to_string()]],
             content: reason.to_string(),
         }
-        .to_event(identity);
+        .to_event(identity, difficulty_target);
 
         self.publish_event(&event)?;
         Ok(event)

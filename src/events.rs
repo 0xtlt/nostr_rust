@@ -87,7 +87,8 @@ impl EventPrepare {
     /// };
     ///
     /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
-    /// let nostr_event = event.to_event(&identity);
+    /// Test to_event without Proof of Work
+    /// let nostr_event = event.to_event(&identity, 0);
     /// assert_eq!(nostr_event.id, "4a57aad22fc0fd374e8ceeaaaf8817fa6cb661ca2229c66309d7dba69dfe2359");
     /// assert_eq!(nostr_event.content, "content");
     /// assert_eq!(nostr_event.kind, 0);
@@ -95,8 +96,25 @@ impl EventPrepare {
     /// assert_eq!(nostr_event.created_at, 0);
     /// assert_eq!(nostr_event.pub_key, env!("PUBLIC_KEY"));
     /// assert_eq!(nostr_event.sig.len(), 128);
+    ///
+    /// Test to_event with Proof of Work
+    /// let difficulty = 10;
+    /// let nostr_event_pow = event.to_event(&identity, difficulty).unwrap();
+    /// let event_id = hex::decode(nostr_event_pow.id).unwrap();
+    /// let event_difficulty = EventPrepare::count_leading_zero_bits(event_id);
+    /// assert!(event_difficulty >= difficulty);
+    /// assert_eq!(nostr_event_pow.content, "content");
+    /// assert_eq!(nostr_event_pow.kind, 0);
+    /// assert_eq!(nostr_event.tags_pow.len(), 1);
+    /// assert!(nostr_event_pow.created_at > 0);
+    /// assert_eq!(nostr_event_pow.pub_key, env!("PUBLIC_KEY"));
+    /// assert_eq!(nostr_event_pow.sig.len(), 128);
     /// ```
-    pub fn to_event(&self, secret_key: &Identity) -> Event {
+    pub fn to_event(&mut self, secret_key: &Identity, difficulty_target: u16) -> Event {
+        if difficulty_target > 0 {
+            self.to_pow_event(difficulty_target).unwrap();
+        }
+
         let message = secp256k1::Message::from_hashed_data::<secp256k1::hashes::sha256::Hash>(
             self.get_content().as_bytes(),
         );

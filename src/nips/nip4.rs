@@ -125,6 +125,7 @@ impl Client {
         identity: &Identity,
         hex_pubkey: &str,
         message: &str,
+        difficulty_target: u16,
     ) -> Result<Event, Error> {
         let x_pub_key = secp256k1::XOnlyPublicKey::from_str(hex_pubkey)?;
         let encrypted_message = encrypt(&identity.secret_key, &x_pub_key, message)?;
@@ -136,7 +137,7 @@ impl Client {
             tags: vec![vec!["p".to_string(), hex_pubkey.to_string()]],
             content: encrypted_message,
         }
-        .to_event(identity);
+        .to_event(identity, difficulty_target);
 
         self.publish_event(&event).unwrap();
         Ok(event)

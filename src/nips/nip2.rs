@@ -73,6 +73,7 @@ impl Client {
         &mut self,
         identity: &Identity,
         contact_list: Vec<ContactListTag>,
+        difficulty_target: u16,
     ) -> Result<(), NIP2Error> {
         let event = EventPrepare {
             pub_key: identity.public_key_str.clone(),
@@ -84,7 +85,7 @@ impl Client {
                 .collect(),
             content: String::new(),
         }
-        .to_event(identity);
+        .to_event(identity, difficulty_target);
 
         self.publish_event(&event)?;
         Ok(())

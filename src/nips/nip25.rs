@@ -42,6 +42,7 @@ impl Client {
         event_id: &str,
         event_pub_key: &str,
         reaction: &str,
+        difficulty_target: u16,
     ) -> Result<Event, NIP25Error> {
         let event = EventPrepare {
             pub_key: identity.public_key_str.clone(),
@@ -53,7 +54,7 @@ impl Client {
             ],
             content: reaction.to_string(),
         }
-        .to_event(identity);
+        .to_event(identity, difficulty_target);
 
         self.publish_event(&event)?;
         Ok(event)
@@ -74,8 +75,9 @@ impl Client {
         identity: &Identity,
         event_id: &str,
         event_pub_key: &str,
+        difficulty_target: u16,
     ) -> Result<Event, NIP25Error> {
-        self.react_to(identity, event_id, event_pub_key, "+")
+        self.react_to(identity, event_id, event_pub_key, "+", difficulty_target)
     }
 
     /// Add a dislike to an event
@@ -93,7 +95,8 @@ impl Client {
         identity: &Identity,
         event_id: &str,
         event_pub_key: &str,
+        difficulty_target: u16,
     ) -> Result<Event, NIP25Error> {
-        self.react_to(identity, event_id, event_pub_key, "-")
+        self.react_to(identity, event_id, event_pub_key, "-", difficulty_target)
     }
 }
