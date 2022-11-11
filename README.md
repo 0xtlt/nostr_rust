@@ -108,14 +108,14 @@ fn main() {
 
 ## NIPs Supported
 
-| NIP | Supported     | Client Version | Description                                                  |
-| --- | ------------- | -------------- | ------------------------------------------------------------ |
+|                              NIP                                | Supported     | Client Version | Description                                                  |
+| --------------------------------------------------------------- | ------------- | -------------- | ------------------------------------------------------------ |
 | [01](https://github.com/nostr-protocol/nips/blob/master/01.md)  | ✅            | 0.1.0          | Basic protocol flow description                              |
 | [02](https://github.com/nostr-protocol/nips/blob/master/02.md)  | ✅            | 0.3.0          | Contact List and Petnames                                    |
 | [03](https://github.com/nostr-protocol/nips/blob/master/03.md)  | ❌            | Not supported  | OpenTimestamps Attestations for Events                       |
 | [04](https://github.com/nostr-protocol/nips/blob/master/04.md)  | ✅            | 0.6.0          | Encrypted Direct Message                                     |
 | [05](https://github.com/nostr-protocol/nips/blob/master/05.md)  | ❌            | Not supported  | Mapping Nostr keys to DNS-based internet identifiers         |
-| [06](https://github.com/nostr-protocol/nips/blob/master/06.md) | ❌            | Not supported  | Basic key derivation from mnemonic seed phrase               |
+| [06](https://github.com/nostr-protocol/nips/blob/master/06.md)  | ❌            | Not supported  | Basic key derivation from mnemonic seed phrase               |
 | [07](https://github.com/nostr-protocol/nips/blob/master/07.md)  | Not concerned | Not supported  | window.nostr capability for web browsers                     |
 | [08](https://github.com/nostr-protocol/nips/blob/master/08.md)  | ❌            | Not supported  | Handling Mentions                                            |
 | [09](https://github.com/nostr-protocol/nips/blob/master/09.md)  | ✅            | 0.5.0          | Event Deletion                                               |
@@ -128,7 +128,7 @@ fn main() {
 | [16](https://github.com/nostr-protocol/nips/blob/master/16.md)  | ❌            | Not supported  | Event Treatment                                              |
 | [22](https://github.com/nostr-protocol/nips/blob/master/22.md)  | ❌            | Not supported  | Event created_at Limits                                      |
 | [25](https://github.com/nostr-protocol/nips/blob/master/25.md)  | ✅            | 0.4.0          | Reactions                                                    |
-| [28](https://github.com/nostr-protocol/nips/blob/master/18.md)  | ❌            | Not supported  | Public Chat                                                  |
+| [28](https://github.com/nostr-protocol/nips/blob/master/28.md)  | ❌            | Not supported  | Public Chat                                                  |
 
 ## License
 
