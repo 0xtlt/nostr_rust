@@ -123,7 +123,7 @@ impl EventPrepare {
 /// Event is the struct used to represent a Nostr event
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Event {
-    /// 32-bytes sha256 of the the serialized event data
+    /// 32-bytes sha256 of the serialized event data
     pub id: String,
     /// 32-bytes hex-encoded public key of the event creator
     #[serde(rename = "pubkey")]
