@@ -13,9 +13,6 @@ pub enum NIP13Error {
     #[error("Content Id is invalid")]
     InvalidContentId(FromHexError),
 
-    #[error("difficulty is invalid")]
-    InvalidDifficulty(TryFromIntError),
-
     #[error("The client has an error")]
     ClientError(ClientError),
 }
@@ -32,12 +29,6 @@ impl From<FromHexError> for NIP13Error {
     }
 }
 
-impl From<TryFromIntError> for NIP13Error {
-    fn from(err: TryFromIntError) -> Self {
-        Self::InvalidDifficulty(err)
-    }
-}
-
 impl EventPrepare {
     /// Counts leading zero bits to calculate PoW difficulty
     /// # Example
@@ -49,11 +40,11 @@ impl EventPrepare {
     /// let diff = EventPrepare::count_leading_zero_bits(hash);
     /// assert_eq!(diff, 36)
     /// ```
-    pub fn count_leading_zero_bits(content_id: Vec<u8>) -> u32 {
-        let mut total: u32 = 0;
+    pub fn count_leading_zero_bits(content_id: Vec<u8>) -> u16 {
+        let mut total: u16 = 0;
 
         for c in content_id {
-            let bits = c.leading_zeros();
+            let bits = c.leading_zeros() as u16;
             total += bits;
             if bits != 8 {
                 break;
@@ -104,7 +95,7 @@ impl EventPrepare {
             let content_id = self.get_content_id();
             let content_id = hex::decode(content_id)?;
 
-            if Self::count_leading_zero_bits(content_id) >= difficulty.into() {
+            if Self::count_leading_zero_bits(content_id) >= difficulty {
                 break;
             }
 
@@ -113,5 +104,5 @@ impl EventPrepare {
         }
 
         Ok(())
-
-    }}
+    }
+}
