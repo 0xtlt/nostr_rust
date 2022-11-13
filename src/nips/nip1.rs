@@ -36,7 +36,7 @@ impl Client {
     /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
     ///
     /// // Here we set the metadata of the identity but not the profile picture one
-    /// client.set_metadata(&identity, Some("Rust Nostr Client"), Some("Automated account for Rust Nostr Client tests :)"), None).unwrap();
+    /// client.set_metadata(&identity, Some("Rust Nostr Client"), Some("Automated account for Rust Nostr Client tests :)"), None, 0).unwrap();
     /// ```
     pub fn set_metadata(
         &mut self,
@@ -85,7 +85,7 @@ impl Client {
     /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
     /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
     /// let message = format!("Hello Nostr! {}", get_timestamp());
-    /// client.publish_text_note(&identity, &message, &vec![]).unwrap();
+    /// client.publish_text_note(&identity, &message, &vec![], 0).unwrap();
     /// ```
     pub fn publish_text_note(
         &mut self,
@@ -115,8 +115,8 @@ impl Client {
     /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
     /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
     ///
-    /// // Here we set the recommended relay server to the one hosted by Wellorder
-    /// client.add_recommended_relay(&identity, "wss://relay.damus.io").unwrap();
+    /// // Here we set the recommended relay server to the url set in env
+    /// client.add_recommended_relay(&identity, "wss://relay.damus.io", 0).unwrap();
     /// ```
     pub fn add_recommended_relay(
         &mut self,

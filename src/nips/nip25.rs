@@ -34,7 +34,7 @@ impl Client {
     /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
     ///
     /// // Here we react to an event
-    /// client.react_to(&identity, "342060554ca30a9792f6e6959675ae734aed02c23e35037d2a0f72ac6316e83d", "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6", "+").unwrap();
+    /// client.react_to(&identity, "342060554ca30a9792f6e6959675ae734aed02c23e35037d2a0f72ac6316e83d", "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6", "+", 0).unwrap();
     /// ```
     pub fn react_to(
         &mut self,
@@ -68,7 +68,7 @@ impl Client {
     /// use std::str::FromStr;
     /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
     /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
-    /// client.like(&identity, "342060554ca30a9792f6e6959675ae734aed02c23e35037d2a0f72ac6316e83d", "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6").unwrap();
+    /// client.like(&identity, "342060554ca30a9792f6e6959675ae734aed0223e35037d2a0f72ac6316e83d", "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6", 0).unwrap();
     /// ```
     pub fn like(
         &mut self,
@@ -88,7 +88,7 @@ impl Client {
     /// use std::str::FromStr;
     /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
     /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
-    /// client.dislike(&identity, "342060554ca30a9792f6e6959675ae734aed02c23e35037d2a0f72ac6316e83d", "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6").unwrap();
+    /// client.dislike(&identity, "342060554ca30a9792f6e6959675ae734aed02c23e35037d2a0f72ac6316e83d", "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6", 0).unwrap();
     /// ```
     pub fn dislike(
         &mut self,

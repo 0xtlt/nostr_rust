@@ -28,11 +28,11 @@ impl Client {
     /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
     /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
     /// // Create an event
-    /// let event = client.publish_text_note(&identity, "Hello Nostr! :)", &[])
+    /// let event = client.publish_text_note(&identity, "Hello Nostr! :)", &[], 0)
     ///   .unwrap();
     ///
     /// // Delete the event
-    /// client.delete_event(&identity, &event.id).unwrap();
+    /// client.delete_event(&identity, &event.id, 0).unwrap();
     /// ```
     pub fn delete_event(
         &mut self,
@@ -52,11 +52,11 @@ impl Client {
     /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
     /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
     /// // Create an event
-    /// let event = client.publish_text_note(&identity, "Hello Nostr! :)", &[])
+    /// let event = client.publish_text_note(&identity, "Hello Nostr! :)", &[], 0)
     ///  .unwrap();
     ///
     /// // Delete the event with a reason
-    /// client.delete_event_with_reason(&identity, &event.id, "This is a reason").unwrap();
+    /// client.delete_event_with_reason(&identity, &event.id, "This is a reason", 0).unwrap();
     /// ```
     pub fn delete_event_with_reason(
         &mut self,

@@ -118,7 +118,7 @@ impl Client {
     /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
     /// let pubkey = "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6";
     ///
-    /// client.send_private_message(&identity, pubkey, "Hello from Rust Nostr Client!").unwrap();
+    /// client.send_private_message(&identity, pubkey, "Hello from Rust Nostr Client!", 0).unwrap();
     /// ```
     pub fn send_private_message(
         &mut self,

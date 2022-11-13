@@ -78,16 +78,17 @@ impl EventPrepare {
     ///
     /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
     /// let difficulty = 10;
-    /// let nostr_event = event.to_pow_event(&identity, difficulty).unwrap();
-    /// let event_id = hex::decode(nostr_event.id).unwrap();
+    /// event.to_pow_event(difficulty).unwrap();
+    /// let event_id = event.get_content_id();
+    /// let event_id = hex::decode(event_id).unwrap();
     /// let event_difficulty = EventPrepare::count_leading_zero_bits(event_id);
-    /// assert!(event_difficulty >= difficulty);
-    /// assert_eq!(nostr_event.content, "content");
-    /// assert_eq!(nostr_event.kind, 0);
-    /// assert_eq!(nostr_event.tags.len(), 1);
-    /// assert!(nostr_event.created_at > 0);
-    /// assert_eq!(nostr_event.pub_key, env!("PUBLIC_KEY"));
-    /// assert_eq!(nostr_event.sig.len(), 128);
+    /// assert!(event_difficulty >= difficulty.into());
+    /// assert_eq!(event.content, "content");
+    /// assert_eq!(event.kind, 0);
+    /// assert_eq!(event.tags.len(), 1);
+    /// assert!(event.created_at > 0);
+    /// assert_eq!(event.pub_key, env!("PUBLIC_KEY"));
+    ///
     /// ```
     pub fn to_pow_event(&mut self, difficulty: u16) -> Result<(), NIP13Error> {
         let mut rng = rand::thread_rng();
