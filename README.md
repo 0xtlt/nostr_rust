@@ -24,10 +24,9 @@ use std::{
     str::FromStr,
     sync::{Arc, Mutex},
     thread,
-    Message,
 };
 
-use nostr_rust::{nostr_client::Client, req::ReqFilter, Identity};
+use nostr_rust::{nostr_client::Client, req::ReqFilter, Identity, Message};
 
 fn handle_message(relay_url: &String, message: &Message) -> Result<(), String> {
     println!("Received message from {}: {:?}", relay_url, message);
@@ -41,7 +40,7 @@ fn main() {
             .unwrap();
 
     let nostr_client = Arc::new(Mutex::new(
-        Client::new(vec!["wss://relay.nostr.info"]).unwrap(),
+        Client::new(vec!["ws://localhost:7000"]).unwrap(),
     ));
 
     // Run a new thread to handle messages
@@ -64,6 +63,7 @@ fn main() {
             Some("Rust Nostr Client test account"),
             Some("Hello Nostr! #5"),
             None,
+            0,
         )
         .unwrap();
 
@@ -71,20 +71,18 @@ fn main() {
     let subscription_id = nostr_client
         .lock()
         .unwrap()
-        .subscribe(
-            vec![ReqFilter {
-                ids: None,
-                authors: Some(vec![
-                    "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6".to_string(),
-                ]),
-                kinds: None,
-                e: None,
-                p: None,
-                since: None,
-                until: None,
-                limit: Some(1),
-            }],
-        )
+        .subscribe(vec![ReqFilter {
+            ids: None,
+            authors: Some(vec![
+                "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6".to_string(),
+            ]),
+            kinds: None,
+            e: None,
+            p: None,
+            since: None,
+            until: None,
+            limit: Some(1),
+        }])
         .unwrap();
 
     // Unsubscribe
@@ -98,14 +96,23 @@ fn main() {
     nostr_client
         .lock()
         .unwrap()
-        .publish_text_note(&my_identity, "Hello Nostr! :)", &[])
+        .publish_text_note(&my_identity, "Hello Nostr! :)", &[], 0)
+        .unwrap();
+
+    // Publish a proof of work text note with a difficulty target of 15
+    nostr_client
+        .lock()
+        .unwrap()
+        .publish_text_note(&my_identity, "Hello Nostr! :)", &[], 15)
         .unwrap();
 
     // Wait for the thread to finish
     handle_thread.join().unwrap();
 }
-```
 
+
+
+```
 ## NIPs Supported
 
 | NIP                                                            | Supported     | Client Version | Description                                                  |

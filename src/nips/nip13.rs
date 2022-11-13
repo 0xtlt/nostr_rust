@@ -1,5 +1,3 @@
-use std::num::TryFromIntError;
-
 use crate::{events::EventPrepare, nostr_client::ClientError, utils::get_timestamp};
 use hex::FromHexError;
 use rand::Rng;
