@@ -30,7 +30,7 @@ impl Client {
     /// ```rust
     /// use nostr_rust::{nostr_client::Client, Identity};
     /// use std::str::FromStr;
-    /// let mut client = Client::new(vec!["wss://nostr-pub.wellorder.net"]).unwrap();
+    /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
     /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
     ///
     /// // Here we react to an event
@@ -65,7 +65,7 @@ impl Client {
     /// ```rust
     /// use nostr_rust::{nostr_client::Client, Identity};
     /// use std::str::FromStr;
-    /// let mut client = Client::new(vec!["wss://nostr-pub.wellorder.net"]).unwrap();
+    /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
     /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
     /// client.like(&identity, "342060554ca30a9792f6e6959675ae734aed02c23e35037d2a0f72ac6316e83d", "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6").unwrap();
     /// ```
@@ -84,7 +84,7 @@ impl Client {
     /// ```rust
     /// use nostr_rust::{nostr_client::Client, Identity};
     /// use std::str::FromStr;
-    /// let mut client = Client::new(vec!["wss://nostr-pub.wellorder.net"]).unwrap();
+    /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
     /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
     /// client.dislike(&identity, "342060554ca30a9792f6e6959675ae734aed02c23e35037d2a0f72ac6316e83d", "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6").unwrap();
     /// ```

@@ -25,7 +25,7 @@ impl Client {
     /// ```rust
     /// use nostr_rust::{nostr_client::Client, Identity};
     /// use std::str::FromStr;
-    /// let mut client = Client::new(vec!["wss://nostr-pub.wellorder.net"]).unwrap();
+    /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
     /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
     /// // Create an event
     /// let event = client.publish_text_note(&identity, "Hello Nostr! :)", &[])
@@ -48,7 +48,7 @@ impl Client {
     /// ```rust
     /// use nostr_rust::{nostr_client::Client, Identity};
     /// use std::str::FromStr;
-    /// let mut client = Client::new(vec!["wss://nostr-pub.wellorder.net"]).unwrap();
+    /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
     /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
     /// // Create an event
     /// let event = client.publish_text_note(&identity, "Hello Nostr! :)", &[])
