@@ -1,12 +1,6 @@
-use crate::{
-    events::{Event, EventPrepare},
-    nostr_client::{Client, ClientError},
-    utils::{self, get_timestamp},
-    Identity,
-};
+use crate::{events::EventPrepare, nostr_client::ClientError, utils::get_timestamp};
 use hex::FromHexError;
 use rand::Rng;
-use secp256k1::{KeyPair, SECP256K1};
 use thiserror::Error;
 
 // Implementation of the NIP13 protocol
@@ -44,11 +38,11 @@ impl EventPrepare {
     /// let diff = EventPrepare::count_leading_zero_bits(hash);
     /// assert_eq!(diff, 36)
     /// ```
-    pub fn count_leading_zero_bits(content_id: Vec<u8>) -> u32 {
-        let mut total: u32 = 0;
+    pub fn count_leading_zero_bits(content_id: Vec<u8>) -> u16 {
+        let mut total: u16 = 0;
 
         for c in content_id {
-            let bits = c.leading_zeros();
+            let bits = c.leading_zeros() as u16;
             total += bits;
             if bits != 8 {
                 break;
@@ -73,22 +67,19 @@ impl EventPrepare {
     ///
     /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
     /// let difficulty = 10;
-    /// let nostr_event = event.to_pow_event(&identity, difficulty).unwrap();
-    /// let event_id = hex::decode(nostr_event.id).unwrap();
+    /// event.to_pow_event(difficulty).unwrap();
+    /// let event_id = event.get_content_id();
+    /// let event_id = hex::decode(event_id).unwrap();
     /// let event_difficulty = EventPrepare::count_leading_zero_bits(event_id);
-    /// assert!(event_difficulty >= difficulty);
-    /// assert_eq!(nostr_event.content, "content");
-    /// assert_eq!(nostr_event.kind, 0);
-    /// assert_eq!(nostr_event.tags.len(), 1);
-    /// assert!(nostr_event.created_at > 0);
-    /// assert_eq!(nostr_event.pub_key, env!("PUBLIC_KEY"));
-    /// assert_eq!(nostr_event.sig.len(), 128);
+    /// assert!(event_difficulty >= difficulty.into());
+    /// assert_eq!(event.content, "content");
+    /// assert_eq!(event.kind, 0);
+    /// assert_eq!(event.tags.len(), 1);
+    /// assert!(event.created_at > 0);
+    /// assert_eq!(event.pub_key, env!("PUBLIC_KEY"));
+    ///
     /// ```
-    pub fn to_pow_event(
-        &mut self,
-        secret_key: &Identity,
-        difficulty: u32,
-    ) -> Result<Event, NIP13Error> {
+    pub fn to_pow_event(&mut self, difficulty: u16) -> Result<(), NIP13Error> {
         let mut rng = rand::thread_rng();
         loop {
             let nonce: u32 = rng.gen_range(0..999999);
@@ -107,62 +98,9 @@ impl EventPrepare {
             }
 
             self.tags.pop();
-            self.created_at = utils::get_timestamp();
+            self.created_at = get_timestamp();
         }
 
-        let message = secp256k1::Message::from_hashed_data::<secp256k1::hashes::sha256::Hash>(
-            self.get_content().as_bytes(),
-        );
-
-        let signature = SECP256K1
-            .sign_schnorr(
-                &message,
-                &KeyPair::from_secret_key(SECP256K1, &secret_key.secret_key),
-            )
-            .to_string();
-
-        Ok(Event {
-            id: self.get_content_id(),
-            pub_key: self.pub_key.clone(),
-            created_at: self.created_at,
-            kind: self.kind,
-            tags: self.tags.clone(),
-            content: self.content.clone(),
-            sig: signature,
-        })
-    }
-}
-
-impl Client {
-    /// Publish a text note event with Proof of Work
-    /// # Example
-    /// ```rust
-    /// use nostr_rust::{nostr_client::Client, Identity, utils::get_timestamp};
-    /// use std::str::FromStr;
-    /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
-    /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
-    /// let message = format!("Hello Nostr! {}", get_timestamp());
-    /// client.publish_pow_text_note(&identity, &message, &vec![], 10).unwrap();
-    /// ```
-    pub fn publish_pow_text_note(
-        &mut self,
-        identity: &Identity,
-        content: &str,
-        tags: &[Vec<String>],
-        difficulty: u32,
-    ) -> Result<Event, NIP13Error> {
-        let mut event_prepare = EventPrepare {
-            pub_key: identity.public_key_str.clone(),
-            created_at: get_timestamp(),
-            kind: 1,
-            tags: tags.to_vec(),
-            content: content.to_string(),
-        };
-
-        let event = event_prepare.to_pow_event(identity, difficulty)?;
-
-        self.publish_event(&event)?;
-
-        Ok(event)
+        Ok(())
     }
 }

@@ -78,7 +78,7 @@ impl EventPrepare {
     /// use std::str::FromStr;
     /// use nostr_rust::{events::EventPrepare, Identity};
     ///
-    /// let event = EventPrepare {
+    /// let mut event = EventPrepare {
     ///  pub_key: env!("PUBLIC_KEY").to_string(),
     ///  created_at: 0, // Don't use this in production
     ///  kind: 0,
@@ -87,7 +87,8 @@ impl EventPrepare {
     /// };
     ///
     /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
-    /// let nostr_event = event.to_event(&identity);
+    /// // Test to_event without Proof of Work
+    /// let nostr_event = event.to_event(&identity, 0);
     /// assert_eq!(nostr_event.id, "4a57aad22fc0fd374e8ceeaaaf8817fa6cb661ca2229c66309d7dba69dfe2359");
     /// assert_eq!(nostr_event.content, "content");
     /// assert_eq!(nostr_event.kind, 0);
@@ -95,8 +96,25 @@ impl EventPrepare {
     /// assert_eq!(nostr_event.created_at, 0);
     /// assert_eq!(nostr_event.pub_key, env!("PUBLIC_KEY"));
     /// assert_eq!(nostr_event.sig.len(), 128);
+    ///
+    /// // Test to_event with Proof of Work
+    /// let difficulty = 10;
+    /// let mut nostr_event_pow = event.to_event(&identity, difficulty);
+    /// let event_id = hex::decode(nostr_event_pow.id).unwrap();
+    /// let event_difficulty = EventPrepare::count_leading_zero_bits(event_id);
+    /// assert!(event_difficulty >= difficulty.into());
+    /// assert_eq!(nostr_event_pow.content, "content");
+    /// assert_eq!(nostr_event_pow.kind, 0);
+    /// assert_eq!(nostr_event_pow.tags.len(), 1);
+    /// assert!(nostr_event_pow.created_at > 0);
+    /// assert_eq!(nostr_event_pow.pub_key, env!("PUBLIC_KEY"));
+    /// assert_eq!(nostr_event_pow.sig.len(), 128);
     /// ```
-    pub fn to_event(&self, secret_key: &Identity) -> Event {
+    pub fn to_event(&mut self, secret_key: &Identity, difficulty_target: u16) -> Event {
+        if difficulty_target > 0 {
+            self.to_pow_event(difficulty_target).unwrap();
+        }
+
         let message = secp256k1::Message::from_hashed_data::<secp256k1::hashes::sha256::Hash>(
             self.get_content().as_bytes(),
         );
@@ -123,7 +141,7 @@ impl EventPrepare {
 /// Event is the struct used to represent a Nostr event
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Event {
-    /// 32-bytes sha256 of the the serialized event data
+    /// 32-bytes sha256 of the serialized event data
     pub id: String,
     /// 32-bytes hex-encoded public key of the event creator
     #[serde(rename = "pubkey")]

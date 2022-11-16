@@ -118,13 +118,14 @@ impl Client {
     /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
     /// let pubkey = "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6";
     ///
-    /// client.send_private_message(&identity, pubkey, "Hello from Rust Nostr Client!").unwrap();
+    /// client.send_private_message(&identity, pubkey, "Hello from Rust Nostr Client!", 0).unwrap();
     /// ```
     pub fn send_private_message(
         &mut self,
         identity: &Identity,
         hex_pubkey: &str,
         message: &str,
+        difficulty_target: u16,
     ) -> Result<Event, Error> {
         let x_pub_key = secp256k1::XOnlyPublicKey::from_str(hex_pubkey)?;
         let encrypted_message = encrypt(&identity.secret_key, &x_pub_key, message)?;
@@ -136,7 +137,7 @@ impl Client {
             tags: vec![vec!["p".to_string(), hex_pubkey.to_string()]],
             content: encrypted_message,
         }
-        .to_event(identity);
+        .to_event(identity, difficulty_target);
 
         self.publish_event(&event).unwrap();
         Ok(event)

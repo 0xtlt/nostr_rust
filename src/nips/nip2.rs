@@ -67,12 +67,14 @@ impl Client {
     ///   key: "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6".to_string(),
     ///   main_relay: Some(env!("RELAY_URL").to_string()),
     ///   surname: Some("Rust Nostr Client".to_string()),
-    /// }]).unwrap();
+    /// }],
+    /// 0).unwrap();
     /// ```
     pub fn set_contact_list(
         &mut self,
         identity: &Identity,
         contact_list: Vec<ContactListTag>,
+        difficulty_target: u16,
     ) -> Result<(), NIP2Error> {
         let event = EventPrepare {
             pub_key: identity.public_key_str.clone(),
@@ -84,7 +86,7 @@ impl Client {
                 .collect(),
             content: String::new(),
         }
-        .to_event(identity);
+        .to_event(identity, difficulty_target);
 
         self.publish_event(&event)?;
         Ok(())

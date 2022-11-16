@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.10.0 - NIP-13 Support
+
+- Edit: `EventPrepare.to_event` method accepts pow difficulty target 
+- Edit: `Client.set_metadata` method accepts pow difficulty target
+- Edit: `Client.publish_text_note` method accepts pow difficulty target
+- Edit: `Client.add_recommended_relay` method accepts pow difficulty target
+- Edit: `EventPrepare::count_leading_zero_bits` method returns u16
+- Edit: `EventPrepare.to_pow_event` method returns Result<(), NIP13Error>
+- Remove: `Client.publish_pow_text_note`
+- Edit: `Client.set_contact_list` method accepts pow difficulty target
+- Edit: `Client.react_to` method accepts pow difficulty target
+- Edit: `Client.like` method accepts pow difficulty target
+- Edit: `Client.dislike` method accepts pow difficulty target
+- Edit: `Client.send_private_message` method accepts pow difficulty target
+- Edit: `Client.delete_event` method accepts pow difficulty target
+- Edit: `Client.delete_event_with_reason` method accepts pow difficulty target  
+
+## 0.9.0 - NIP-11 Support
+
+- Add: `nips::nip11::get_relay_information_document` method
+
 ## 0.8.0 - NIP-13 Support
 
 - Add: `nips::nip13::NIP13Error` enum

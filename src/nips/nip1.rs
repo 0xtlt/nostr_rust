@@ -36,7 +36,7 @@ impl Client {
     /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
     ///
     /// // Here we set the metadata of the identity but not the profile picture one
-    /// client.set_metadata(&identity, Some("Rust Nostr Client"), Some("Automated account for Rust Nostr Client tests :)"), None).unwrap();
+    /// client.set_metadata(&identity, Some("Rust Nostr Client"), Some("Automated account for Rust Nostr Client tests :)"), None, 0).unwrap();
     /// ```
     pub fn set_metadata(
         &mut self,
@@ -44,6 +44,7 @@ impl Client {
         name: Option<&str>,
         about: Option<&str>,
         picture: Option<&str>,
+        difficulty_target: u16,
     ) -> Result<Event, NIP1Error> {
         let mut json_body = json!({});
 
@@ -70,7 +71,7 @@ impl Client {
             tags: vec![],
             content: json_body.to_string(),
         }
-        .to_event(identity);
+        .to_event(identity, difficulty_target);
 
         self.publish_event(&event)?;
         Ok(event)
@@ -84,13 +85,14 @@ impl Client {
     /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
     /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
     /// let message = format!("Hello Nostr! {}", get_timestamp());
-    /// client.publish_text_note(&identity, &message, &vec![]).unwrap();
+    /// client.publish_text_note(&identity, &message, &vec![], 0).unwrap();
     /// ```
     pub fn publish_text_note(
         &mut self,
         identity: &Identity,
         content: &str,
         tags: &[Vec<String>],
+        difficulty_target: u16,
     ) -> Result<Event, NIP1Error> {
         let event = EventPrepare {
             pub_key: identity.public_key_str.clone(),
@@ -99,7 +101,7 @@ impl Client {
             tags: tags.to_vec(),
             content: content.to_string(),
         }
-        .to_event(identity);
+        .to_event(identity, difficulty_target);
 
         self.publish_event(&event)?;
         Ok(event)
@@ -113,13 +115,14 @@ impl Client {
     /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
     /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
     ///
-    /// // Here we set the recommended relay server to the one hosted by Wellorder
-    /// client.add_recommended_relay(&identity, "wss://relay.damus.io").unwrap();
+    /// // Here we set the recommended relay server to the url set in env
+    /// client.add_recommended_relay(&identity, "wss://relay.damus.io", 0).unwrap();
     /// ```
     pub fn add_recommended_relay(
         &mut self,
         identity: &Identity,
         relay: &str,
+        difficulty_target: u16,
     ) -> Result<Event, NIP1Error> {
         let event = EventPrepare {
             pub_key: identity.public_key_str.clone(),
@@ -128,7 +131,7 @@ impl Client {
             tags: vec![],
             content: relay.to_string(),
         }
-        .to_event(identity);
+        .to_event(identity, difficulty_target);
 
         self.publish_event(&event)?;
         Ok(event)
