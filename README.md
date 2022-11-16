@@ -40,7 +40,7 @@ fn main() {
             .unwrap();
 
     let nostr_client = Arc::new(Mutex::new(
-        Client::new(vec!["ws://localhost:7000"]).unwrap(),
+        Client::new(vec!["wss://relay.nostr.info"]).unwrap(),
     ));
 
     // Run a new thread to handle messages
