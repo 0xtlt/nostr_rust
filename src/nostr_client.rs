@@ -37,7 +37,7 @@ impl Client {
     /// # Example
     /// ```rust
     /// use nostr_rust::nostr_client::Client;
-    /// let client = Client::new(vec!["wss://nostr-pub.wellorder.net"]).unwrap();
+    /// let client = Client::new(vec![env!("RELAY_URL")]).unwrap();
     /// ```
     pub fn new(default_relays: Vec<&str>) -> Result<Self, ClientError> {
         let mut client = Self {
@@ -58,7 +58,7 @@ impl Client {
     /// # Example
     /// ```rust
     /// use nostr_rust::nostr_client::Client;
-    /// let mut client = Client::new(vec!["wss://nostr-pub.wellorder.net"]).unwrap();
+    /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
     /// client.add_relay("wss://relay.damus.io").unwrap();
     /// ```
     pub fn add_relay(&mut self, relay: &str) -> Result<(), ClientError> {
@@ -82,8 +82,8 @@ impl Client {
     /// # Example
     /// ```rust
     /// use nostr_rust::nostr_client::Client;
-    /// let mut client = Client::new(vec!["wss://nostr-pub.wellorder.net"]).unwrap();
-    /// client.remove_relay("wss://nostr-pub.wellorder.net").unwrap();
+    /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
+    /// client.remove_relay(env!("RELAY_URL")).unwrap();
     /// ```
     pub fn remove_relay(&mut self, relay: &str) -> Result<(), ClientError> {
         if !self.relays.contains_key(relay) {
@@ -132,7 +132,7 @@ impl Client {
     ///   Ok(())
     /// }
     ///
-    /// let mut client = Arc::new(Mutex::new(Client::new(vec!["wss://nostr-pub.wellorder.net"]).unwrap()));
+    /// let mut client = Arc::new(Mutex::new(Client::new(vec![env!("RELAY_URL")]).unwrap()));
     ///
     /// // Run a new thread to listen
     /// let nostr_clone = client.clone();
@@ -180,7 +180,7 @@ impl Client {
     /// # Example
     /// ```rust
     /// use nostr_rust::{nostr_client::Client, req::ReqFilter};
-    /// let mut client = Client::new(vec!["wss://nostr-pub.wellorder.net"]).unwrap();
+    /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
     /// client
     /// .subscribe(vec![ReqFilter { // None means generate a random ID
     ///     ids: None,
@@ -213,7 +213,7 @@ impl Client {
     /// # Example
     /// ```rust
     /// use nostr_rust::{nostr_client::Client, req::ReqFilter};
-    /// let mut client = Client::new(vec!["wss://nostr-pub.wellorder.net"]).unwrap();
+    /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
     /// client
     /// .subscribe_with_id("my_subscription_id", vec![ReqFilter {
     ///    ids: None,
@@ -249,7 +249,7 @@ impl Client {
     /// # Example
     /// ```rust
     /// use nostr_rust::{nostr_client::Client, req::ReqFilter};
-    /// let mut client = Client::new(vec!["wss://nostr-pub.wellorder.net"]).unwrap();
+    /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
     /// let subscription_id = client
     /// .subscribe(vec![ReqFilter {
     ///    ids: None,
@@ -305,7 +305,7 @@ impl Client {
     /// # Example
     /// ```rust
     /// use nostr_rust::{nostr_client::Client, req::ReqFilter};
-    /// let mut client = Client::new(vec!["wss://nostr-pub.wellorder.net"]).unwrap();
+    /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
     /// let events = client.get_events_of(vec![ReqFilter {
     ///    ids: None,
     ///    authors: Some(vec!["884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6".to_string()]),
