@@ -24,7 +24,7 @@ pub struct EventPrepare {
 }
 
 impl EventPrepare {
-    /// //get_content returns the content of the event to be signed
+    /// get_content returns the content of the event to be signed
     /// # Example
     /// ```rust
     /// use nostr_rust::{events::EventPrepare, utils::get_timestamp};
