@@ -11,6 +11,7 @@ env:
   RUST_BACKTRACE: 1
   SECRET_KEY: "${{ secrets.SECRET_KEY }}"
   PUBLIC_KEY: "${{ secrets.PUBLIC_KEY }}"
+  RELAY_URL: "${{ secrets.RELAY_URL }}"
 
 jobs:
   ci-pass:
