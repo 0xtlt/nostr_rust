@@ -8,7 +8,7 @@ keywords = ["nostr", "rust", "protocol", "encryption", "decryption"]
 categories = ["api-bindings"]
 license = "MIT"
 authors = ["Thomas Tastet"]
-version = "0.10.0"
+version = "0.11.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -19,7 +19,7 @@ serde = { version = "1", default-features = false, features = ["derive"] }
 serde_derive = "1"
 sha256 = "1"
 hex = "0.4"
-# bech32 = "0.9" // TODO: use bech32 for encoding and decoding
+bech32 = "0.9"
 rand = "0.8"
 secp256k1 = { version = "0.24", features = ["bitcoin_hashes", "global-context", "rand-std"] }
 tungstenite = { version = "0.17", default-features = false, features = ["rustls-tls-webpki-roots"] }

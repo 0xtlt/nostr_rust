@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.11.0 - Bech32 support
+
+- Add: `bech32::to_bech32` method to convert a `Hex` to a bech32 address
+- Add: `bech32::from_hb_to_hex` method to convert a bech32 address to a `Hex` (hb for hex and bech32)
+
 ## 0.10.0 - NIP-13 better Support
 
 - Edit: `EventPrepare.to_event` method accepts pow difficulty target
