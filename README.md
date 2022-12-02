@@ -14,7 +14,7 @@ An ergonomic, [Nostr](https://github.com/nostr-protocol/nostr) API Client for Ru
 
 ```toml
 [dependencies]
-nostr_rust = "0.11"
+nostr_rust = "0.12"
 ```
 
 And then the code:
