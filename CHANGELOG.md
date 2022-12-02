@@ -1,7 +1,9 @@
 # Changelog
 
-- Change: `Event` `kind` field from u8 to u16
-- Change: `EventPrepare` `kind` field from u8 to u16
+## 0.12.0 - More kinds of things
+
+- Edit: `Event` `kind` field from u8 to u16
+- Edit: `EventPrepare` `kind` field from u8 to u16
 
 ## 0.11.0 - Bech32 support
 
