@@ -16,7 +16,7 @@ pub struct EventPrepare {
     pub created_at: u64,
     /// integer
     /// 0: NostrEvent
-    pub kind: u8,
+    pub kind: u16,
     /// Tags
     pub tags: Vec<Vec<String>>,
     /// arbitrary string
@@ -150,7 +150,7 @@ pub struct Event {
     pub created_at: u64,
     /// integer
     /// 0: NostrEvent
-    pub kind: u8,
+    pub kind: u16,
     /// Tags
     pub tags: Vec<Vec<String>>,
     /// arbitrary string

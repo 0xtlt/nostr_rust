@@ -1,5 +1,8 @@
 # Changelog
 
+- Change: `Event` `kind` field from u8 to u16
+- Change: `EventPrepare` `kind` field from u8 to u16
+
 ## 0.11.0 - Bech32 support
 
 - Add: `bech32::to_bech32` method to convert a `Hex` to a bech32 address
