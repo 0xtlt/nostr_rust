@@ -11,6 +11,11 @@ authors = ["Thomas Tastet"]
 version = "0.13.0"
 edition = "2021"
 
+[features]
+# Default is temporary until the library is more stable
+default = ["async"]
+async = []
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
@@ -23,9 +28,13 @@ bech32 = "0.9"
 rand = "0.8"
 secp256k1 = { version = "0.24", features = ["bitcoin_hashes", "global-context", "rand-std"] }
 tungstenite = { version = "0.18", default-features = false, features = ["handshake", "rustls-tls-webpki-roots"] }
+tokio-tungstenite = { version = "0.18", default-features = true, features = ["handshake", "rustls-tls-webpki-roots"] }
 url = "2.3"
 base64 = "0.13"
 aes = "0.8"
 cbc = { version = "0.1", features = ["alloc"] }
 thiserror = "1"
 reqwest = { version = "0.11", default-features = false, features = ["json", "rustls-tls-webpki-roots", "blocking"] }
+tokio = "1.22.0"
+futures-util = "0.3.25"
+futures = "0.3.25"
