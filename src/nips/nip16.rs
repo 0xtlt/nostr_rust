@@ -40,7 +40,10 @@ impl From<websocket::SimplifiedWSError> for NIP16Error {
 }
 
 impl Client {
-    /// Publish a replaceable event
+    /// Publish a replaceable event.
+    /// `kind` argument should be less then 9999.
+    /// `publish_replaceable_event` adds 10000 to `kind` to update event `kind` to be within the NIP16
+    /// replaceable event range 10000 <= kind < 20000
     /// # Example
     /// ```rust
     /// use nostr_rust::nostr_client::Client;
@@ -50,12 +53,20 @@ impl Client {
 
     /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
     /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
-    /// let event = client.publish_replaceable_event(&identity, 20000, "hello world", &[],
-    /// 0).unwrap_err();
+    /// let event = client.publish_replaceable_event(
+    ///                             &identity,
+    ///                             20000,
+    ///                             "hello world",
+    ///                             &[],
+    ///                             0).unwrap_err();
     /// assert_eq!(event, NIP16Error::EventKindOutOfRange);
     ///
-    /// let event = client.publish_replaceable_event(&identity, 10, "hello world", &[],
-    /// 0).unwrap();
+    /// let event = client.publish_replaceable_event(
+    ///                             &identity,
+    ///                             10,
+    ///                             "hello world",
+    ///                             &[],
+    ///                             0).unwrap();
     /// assert_eq!(event.kind, 10010)
     /// ```
     pub fn publish_replaceable_event(
@@ -85,7 +96,10 @@ impl Client {
         Ok(event)
     }
 
-    /// Publish an ephemeral event
+    /// Publish an ephemeral event.
+    /// `kind` argument should be less then 9999.
+    /// `publish_ephemeral_event` adds 20000 to `kind` to update event `kind` to be within the NIP16
+    /// ephemeral event range of 20000 <= kind < 30000
     /// # Example
     /// ```rust
     /// use nostr_rust::nostr_client::Client;
@@ -95,8 +109,13 @@ impl Client {
 
     /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
     /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
-    /// let event = client.publish_ephemeral_event(&identity, 10000, "hello world", &[],
-    /// 0).unwrap_err();
+    /// let event = client.publish_ephemeral_event(
+    ///                         &identity,
+    ///                         10000,
+    ///                         "hello world",
+    ///                         &[],
+    ///                         0)
+    ///                         .unwrap_err();
     /// assert_eq!(event, NIP16Error::EventKindOutOfRange);
     /// let event = client.publish_ephemeral_event(&identity, 5, "hello world", &[],
     /// 0).unwrap();
