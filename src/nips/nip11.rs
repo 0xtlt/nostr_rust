@@ -28,6 +28,7 @@ pub enum NIP11Error {
 pub fn get_relay_information_document(
     relay_url: &str,
 ) -> Result<RelayInformationDocument, NIP11Error> {
+    let relay_url = relay_url.replacen("ws", "http", 1);
     let relay_response: RelayInformationDocument = match reqwest::blocking::Client::new()
         .get(relay_url)
         .header("Accept", "application/nostr+json")
