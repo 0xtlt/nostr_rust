@@ -6,14 +6,14 @@ use thiserror::Error;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RelayInformationDocument {
-    pub id: String,
-    pub name: String,
-    pub description: String,
-    pub pubkey: String,
-    pub contact: String,
-    pub supported_nips: Vec<u16>,
-    pub software: String,
-    pub version: String,
+    pub id: Option<String>,
+    pub name: Option<String>,
+    pub description: Option<String>,
+    pub pubkey: Option<String>,
+    pub contact: Option<String>,
+    pub supported_nips: Option<Vec<u16>>,
+    pub software: Option<String>,
+    pub version: Option<String>,
 }
 
 #[derive(Error, Debug, Eq, PartialEq)]
