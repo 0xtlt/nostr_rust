@@ -52,13 +52,11 @@ impl Client {
     /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
     /// let event = client.publish_replaceable_event(&identity, 20000, "hello world", &[],
     /// 0).unwrap_err();
-    /// //assert_eq!(event, NIP16Error::EventKindOutOfRange);
-    /// let event = client.publish_replaceable_event(&identity, 100, "hello world", &[],
-    /// 0).unwrap_err();
-    /// //assert_eq!(event, NIP16Error::EventKindOutOfRange);
+    /// assert_eq!(event, NIP16Error::EventKindOutOfRange);
     ///
-    /// let event = client.publish_replaceable_event(&identity, 15000, "hello world", &[],
+    /// let event = client.publish_replaceable_event(&identity, 10, "hello world", &[],
     /// 0).unwrap();
+    /// assert_eq!(event.kind, 10010)
     /// ```
     pub fn publish_replaceable_event(
         &mut self,
@@ -68,9 +66,11 @@ impl Client {
         tags: &[Vec<String>],
         difficulty_target: u16,
     ) -> Result<Event, NIP16Error> {
-        if !(10000..20000).contains(&kind) {
+        if kind > 9999 {
             return Err(NIP16Error::EventKindOutOfRange);
         }
+
+        let kind = kind + 10000;
 
         let event = EventPrepare {
             pub_key: identity.public_key_str.clone(),
@@ -95,15 +95,13 @@ impl Client {
 
     /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
     /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
-    /// let event = client.publish_ephemeral_event(&identity, 19999, "hello world", &[],
+    /// let event = client.publish_ephemeral_event(&identity, 10000, "hello world", &[],
     /// 0).unwrap_err();
-    /// //assert_eq!(event, NIP16Error::EventKindOutOfRange);
-    /// let event = client.publish_ephemeral_event(&identity, 30000, "hello world", &[],
-    /// 0).unwrap_err();
-    /// //assert_eq!(event, NIP16Error::EventKindOutOfRange);
-    ///
-    /// let event = client.publish_replaceable_event(&identity, 25000, "hello world", &[],
+    /// assert_eq!(event, NIP16Error::EventKindOutOfRange);
+    /// let event = client.publish_ephemeral_event(&identity, 5, "hello world", &[],
     /// 0).unwrap();
+    /// assert_eq!(event.kind, 20005);
+    ///
     /// ```
     pub fn publish_ephemeral_event(
         &mut self,
@@ -113,9 +111,11 @@ impl Client {
         tags: &[Vec<String>],
         difficulty_target: u16,
     ) -> Result<Event, NIP16Error> {
-        if !(20000..30000).contains(&kind) {
+        if kind > 9999 {
             return Err(NIP16Error::EventKindOutOfRange);
         }
+
+        let kind = kind + 20000;
 
         let event = EventPrepare {
             pub_key: identity.public_key_str.clone(),
