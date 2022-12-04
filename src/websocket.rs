@@ -1,7 +1,6 @@
 // Simplified websocket implementation
 use futures::StreamExt;
 use futures_util::sink::SinkExt;
-use std::net::TcpStream;
 use thiserror::Error;
 #[cfg(feature = "async")]
 use tokio_tungstenite::{connect_async, tungstenite::Message, MaybeTlsStream, WebSocketStream};
