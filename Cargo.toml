@@ -14,7 +14,8 @@ edition = "2021"
 [features]
 # Default is temporary until the library is more stable
 default = ["async"]
-async = []
+async = ["futures", "tokio", "futures-util"]
+sync = ["reqwest/blocking"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -34,7 +35,7 @@ base64 = "0.13"
 aes = "0.8"
 cbc = { version = "0.1", features = ["alloc"] }
 thiserror = "1"
-reqwest = { version = "0.11", default-features = false, features = ["json", "rustls-tls-webpki-roots", "blocking"] }
-tokio = "1.22.0"
-futures-util = "0.3.25"
-futures = "0.3.25"
+reqwest = { version = "0.11", default-features = false, features = ["json", "rustls-tls-webpki-roots"] }
+tokio = { version = "1.22", optional = true }
+futures-util = { version = "0.3", optional = true }
+futures = { version = "0.3", optional = true }

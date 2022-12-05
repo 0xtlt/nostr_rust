@@ -1,5 +1,7 @@
 // Simplified websocket implementation
+#[cfg(feature = "async")]
 use futures::StreamExt;
+#[cfg(feature = "async")]
 use futures_util::sink::SinkExt;
 use thiserror::Error;
 #[cfg(feature = "async")]
@@ -26,7 +28,7 @@ pub enum SimplifiedWSError {
 pub struct SimplifiedWS {
     pub url: Url,
     #[cfg(not(feature = "async"))]
-    pub socket: WebSocket<MaybeTlsStream<TcpStream>>,
+    pub socket: WebSocket<MaybeTlsStream<std::net::TcpStream>>,
     #[cfg(feature = "async")]
     pub socket: WebSocketStream<MaybeTlsStream<tokio::net::TcpStream>>,
 }

@@ -104,7 +104,7 @@ impl Client {
         }
 
         self.relays
-            .insert(relay.to_string(), Arc::new(Mutex::new(client)));
+            .insert(relay.to_string(), Arc::new(std::sync::Mutex::new(client)));
 
         Ok(())
     }
