@@ -133,7 +133,7 @@ fn main() {
 | [13](https://github.com/nostr-protocol/nips/blob/master/13.md) | ✅            | 0.8.0          | Proof of Work                                                |
 | [14](https://github.com/nostr-protocol/nips/blob/master/14.md) | ❌            | Not supported  | Subject tag in text events.                                  |
 | [15](https://github.com/nostr-protocol/nips/blob/master/15.md) | ❌            | Not supported  | End of Stored Events Notice                                  |
-| [16](https://github.com/nostr-protocol/nips/blob/master/16.md) | ❌            | Not supported  | Event Treatment                                              |
+| [16](https://github.com/nostr-protocol/nips/blob/master/16.md) | ✅            | 0.13.0         | Event Treatment                                              |
 | [22](https://github.com/nostr-protocol/nips/blob/master/22.md) | ❌            | Not supported  | Event created_at Limits                                      |
 | [25](https://github.com/nostr-protocol/nips/blob/master/25.md) | ✅            | 0.4.0          | Reactions                                                    |
 | [28](https://github.com/nostr-protocol/nips/blob/master/28.md) | ❌            | Not supported  | Public Chat                                                  |
