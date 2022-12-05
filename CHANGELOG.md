@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.13.0 - NIP-16 Support
+- Add: `Client.publish_replaceable_event`
+- Add: `Client.publish_ephemeral_event`
+- Add: `nips::nip16:NIP16Error` enum
+- Add: `nips::nip16::publish_nip16_event`
+
 ## 0.12.0 - More kinds of things
 
 - Edit: `Event` `kind` field from u8 to u16
