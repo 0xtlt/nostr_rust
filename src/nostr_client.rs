@@ -4,7 +4,7 @@ use crate::websocket::{self, SimplifiedWS};
 use crate::Message;
 use serde_json::{json, Value};
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 use thiserror::Error;
 
 #[derive(Error, Debug, Eq, PartialEq)]
@@ -25,9 +25,17 @@ impl From<websocket::SimplifiedWSError> for ClientError {
     }
 }
 
+#[cfg(not(feature = "async"))]
 /// Nostr Client
 pub struct Client {
-    pub relays: HashMap<String, Arc<Mutex<SimplifiedWS>>>,
+    pub relays: HashMap<String, Arc<std::sync::Mutex<SimplifiedWS>>>,
+    pub subscriptions: HashMap<String, Vec<Message>>,
+}
+
+#[cfg(feature = "async")]
+/// Nostr Client
+pub struct Client {
+    pub relays: HashMap<String, Arc<tokio::sync::Mutex<SimplifiedWS>>>,
     pub subscriptions: HashMap<String, Vec<Message>>,
 }
 
@@ -121,7 +129,7 @@ impl Client {
         }
 
         self.relays
-            .insert(relay.to_string(), Arc::new(Mutex::new(client)));
+            .insert(relay.to_string(), Arc::new(tokio::sync::Mutex::new(client)));
 
         Ok(())
     }
@@ -170,7 +178,7 @@ impl Client {
             .remove(relay)
             .unwrap()
             .lock()
-            .unwrap()
+            .await
             .socket
             .close(None)
             .await
@@ -200,7 +208,7 @@ impl Client {
         let message = Message::text(json_stringified);
 
         for relay in self.relays.values() {
-            let mut relay = relay.lock().unwrap();
+            let mut relay = relay.lock().await;
             relay.send_message(&message).await?;
         }
 
@@ -323,7 +331,7 @@ impl Client {
         let mut events: Vec<(String, tungstenite::Message)> = Vec::new();
 
         for (relay_name, socket) in self.relays.iter() {
-            let message = socket.lock().unwrap().read_message().await?;
+            let message = socket.lock().await.read_message().await?;
             events.push((relay_name.clone(), message));
         }
 
@@ -390,7 +398,7 @@ impl Client {
         let message = Message::text(req.to_string());
 
         for relay in self.relays.values() {
-            let mut relay = relay.lock().unwrap();
+            let mut relay = relay.lock().await;
             relay.send_message(&message).await?;
         }
 
@@ -467,7 +475,7 @@ impl Client {
         let message = Message::text(req.to_string());
 
         for relay in self.relays.values() {
-            let mut relay = relay.lock().unwrap();
+            let mut relay = relay.lock().await;
             relay.send_message(&message).await?;
         }
 
@@ -534,7 +542,7 @@ impl Client {
         let message = Message::text(json!(["CLOSE", subscription_id]).to_string());
 
         for relay in self.relays.values() {
-            let mut relay = relay.lock().unwrap();
+            let mut relay = relay.lock().await;
             relay.send_message(&message).await?;
         }
 

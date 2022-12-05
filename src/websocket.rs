@@ -66,7 +66,7 @@ impl SimplifiedWS {
     pub async fn send_message(&mut self, message: &Message) -> Result<(), SimplifiedWSError> {
         match self.socket.send(message.clone()).await {
             Ok(_) => Ok(()),
-            Err(_) => return Err(SimplifiedWSError::SendMessageError),
+            Err(_) => Err(SimplifiedWSError::SendMessageError),
         }
     }
 
