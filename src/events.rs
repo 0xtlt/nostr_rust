@@ -1,8 +1,11 @@
 use std::fmt;
 
-use secp256k1::{KeyPair, SECP256K1};
+use secp256k1::{schnorr::Signature, KeyPair, XOnlyPublicKey, SECP256K1};
 use serde_derive::{Deserialize, Serialize};
 use serde_json::json;
+use std::str::FromStr;
+
+use thiserror::Error;
 
 use crate::Identity;
 
@@ -157,6 +160,101 @@ pub struct Event {
     pub content: String,
     /// 64-bytes signature of the sha256 hash of the serialized event data, which is the same as the "id" field
     pub sig: String,
+}
+
+#[derive(Error, Debug, Eq, PartialEq)]
+pub enum EventError {
+    #[error("Secp256k1 Error: {}", _0)]
+    Secp256k1Error(secp256k1::Error),
+}
+
+impl From<secp256k1::Error> for EventError {
+    fn from(err: secp256k1::Error) -> Self {
+        Self::Secp256k1Error(err)
+    }
+}
+
+impl Event {
+    /// get_content returns the content of the event
+    /// # Example
+    /// ```rust
+    /// use nostr_rust::{events::EventPrepare, utils::get_timestamp, Identity};
+    /// use std::str::FromStr;
+    ///
+    /// let actual_time = get_timestamp();
+    /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
+    /// let event = EventPrepare {
+    ///    pub_key: env!("PUBLIC_KEY").to_string(),
+    ///    created_at: get_timestamp(),
+    ///    kind: 0,
+    ///    tags: vec![],
+    ///    content: "content".to_string(),
+    /// }.to_event(&identity, 0);
+    ///
+    /// assert_eq!(event.get_content(), format!("[0,\"c5aec31e83bdf980939b5ef7c6bcaa2be8bd39d38667da58ba6dba240eb8b69d\",{},0,[],\"content\"]", actual_time));
+    /// ```
+    pub fn get_content(&self) -> String {
+        json!([
+            0,
+            self.pub_key,
+            self.created_at,
+            self.kind,
+            self.tags,
+            self.content
+        ])
+        .to_string()
+    }
+
+    /// Get the id of the event which is the sha256 hash of the content
+    /// # Example
+    /// ```rust
+    /// use nostr_rust::{events::EventPrepare, Identity};
+    /// use std::str::FromStr;
+    /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
+    /// let event = EventPrepare {
+    ///   pub_key: env!("PUBLIC_KEY").to_string(),
+    ///   created_at: 0, // Don't use this in production
+    ///   kind: 0,
+    ///   tags: vec![],
+    ///   content: "content".to_string(),
+    /// }.to_event(&identity, 0);
+    ///
+    /// assert_eq!(event.get_content_id(), "4a57aad22fc0fd374e8ceeaaaf8817fa6cb661ca2229c66309d7dba69dfe2359");
+    /// ```
+    pub fn get_content_id(&self) -> String {
+        sha256::digest(self.get_content())
+    }
+
+    /// Get the id of the event which is the sha256 hash of the content
+    /// # Example
+    /// ```rust
+    /// use nostr_rust::{events::EventPrepare, Identity};
+    /// use std::str::FromStr;
+    ///
+    /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
+    ///
+    /// let event = EventPrepare {
+    ///   pub_key: env!("PUBLIC_KEY").to_string(),
+    ///   created_at: 0, // Don't use this in production
+    ///   kind: 0,
+    ///   tags: vec![],
+    ///   content: "content".to_string(),
+    /// }.to_event(&identity, 0);
+    ///
+    /// event.verify().unwrap()
+    /// ```
+    pub fn verify(&self) -> Result<(), EventError> {
+        let message = secp256k1::Message::from_hashed_data::<secp256k1::hashes::sha256::Hash>(
+            self.get_content().as_bytes(),
+        );
+
+        SECP256K1.verify_schnorr(
+            &Signature::from_str(&self.sig)?,
+            &message,
+            &XOnlyPublicKey::from_str(&self.pub_key)?,
+        )?;
+        Ok(())
+    }
 }
 
 impl fmt::Display for Event {

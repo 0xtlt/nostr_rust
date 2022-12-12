@@ -1,5 +1,10 @@
 # Changelog
 
+- Add: `Event.get_content` method
+- Add: `Event.get_content_id` method
+- Add: `Event.verify` method
+- Add: `EventError` enum
+
 ## 0.13.1 - ReqFilter kinds to u16
 
 - Edit: `kinds` will now be `Option<Vec<u16>>` instead of `Option<Vec<u8>>` in `ReqFilter`
