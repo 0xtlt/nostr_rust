@@ -1,6 +1,11 @@
 # Changelog
 
+## 0.13.1 - ReqFilter kinds to u16
+
+- Edit: `kinds` will now be `Option<Vec<u16>>` instead of `Option<Vec<u8>>` in `ReqFilter`
+
 ## 0.13.0 - NIP-16 Support
+
 - Add: `Client.publish_replaceable_event`
 - Add: `Client.publish_ephemeral_event`
 - Add: `nips::nip16:NIP16Error` enum
