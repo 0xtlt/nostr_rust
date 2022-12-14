@@ -190,8 +190,7 @@ impl Event {
     ///    tags: vec![],
     ///    content: "content".to_string(),
     /// }.to_event(&identity, 0);
-    ///
-    /// assert_eq!(event.get_content(), format!("[0,\"c5aec31e83bdf980939b5ef7c6bcaa2be8bd39d38667da58ba6dba240eb8b69d\",{},0,[],\"content\"]", actual_time));
+    /// assert_eq!(event.get_content(), format!("[0,\"{}\",{},0,[],\"content\"]", env!("PUBLIC_KEY"), actual_time));
     /// ```
     pub fn get_content(&self) -> String {
         json!([
@@ -219,7 +218,7 @@ impl Event {
     ///   content: "content".to_string(),
     /// }.to_event(&identity, 0);
     ///
-    /// assert_eq!(event.get_content_id(), "4a57aad22fc0fd374e8ceeaaaf8817fa6cb661ca2229c66309d7dba69dfe2359");
+    /// assert_eq!(event.get_content_id().chars().len(), 64);
     /// ```
     pub fn get_content_id(&self) -> String {
         sha256::digest(self.get_content())
