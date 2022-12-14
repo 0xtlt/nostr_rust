@@ -218,7 +218,7 @@ impl Event {
     ///   content: "content".to_string(),
     /// }.to_event(&identity, 0);
     ///
-    /// assert_eq!(event.get_content_id().chars().len(), 64);
+    /// assert_eq!(event.get_content_id().len(), 64);
     /// ```
     pub fn get_content_id(&self) -> String {
         sha256::digest(self.get_content())
