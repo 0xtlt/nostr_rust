@@ -1,5 +1,7 @@
 # Changelog
 
+## 0.14.0 - Event Verify
+
 - Add: `Event.get_content` method
 - Add: `Event.get_content_id` method
 - Add: `Event.verify` method
