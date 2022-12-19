@@ -63,6 +63,7 @@ fn main() {
             Some("Rust Nostr Client test account"),
             Some("Hello Nostr! #5"),
             None,
+            None,
             0,
         )
         .unwrap();

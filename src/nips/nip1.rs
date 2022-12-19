@@ -50,7 +50,7 @@ impl Client {
     /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
     ///
     /// // Here we set the metadata of the identity but not the profile picture one
-    /// client.set_metadata(&identity, Some("Rust Nostr Client"), Some("Automated account for Rust Nostr Client tests :)"), None, 0).unwrap();
+    /// client.set_metadata(&identity, Some("Rust Nostr Client"), Some("Automated account for Rust Nostr Client tests :)"), None, None, 0).unwrap();
     /// ```
     pub fn set_metadata(
         &mut self,
@@ -58,8 +58,8 @@ impl Client {
         name: Option<&str>,
         about: Option<&str>,
         picture: Option<&str>,
-        difficulty_target: u16,
         nip05: Option<&str>,
+        difficulty_target: u16,
     ) -> Result<Event, NIP1Error> {
         let mut json_body = json!({});
 
