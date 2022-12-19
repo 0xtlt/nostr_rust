@@ -1,6 +1,26 @@
 # Changelog
 
+## 0.15.0 - NIP 05 Support
+
+- Add `nips::nip05::check_validity` method
+- Add `nips::nip05::get_nip05` method
+- Add `nips::nip05::get_nips05` method
+- Add `nips::nip05::NostrWellKnown` structure
+- Add `nips::nip05::NIP5Error` enum
+
+## 0.14.0 - Event Verify
+
+- Add: `Event.get_content` method
+- Add: `Event.get_content_id` method
+- Add: `Event.verify` method
+- Add: `EventError` enum
+
+## 0.13.1 - ReqFilter kinds to u16
+
+- Edit: `kinds` will now be `Option<Vec<u16>>` instead of `Option<Vec<u8>>` in `ReqFilter`
+
 ## 0.13.0 - NIP-16 Support
+
 - Add: `Client.publish_replaceable_event`
 - Add: `Client.publish_ephemeral_event`
 - Add: `nips::nip16:NIP16Error` enum

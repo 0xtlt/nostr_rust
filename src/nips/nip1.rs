@@ -7,21 +7,35 @@ use crate::{
 use serde_json::json;
 use thiserror::Error;
 
+use super::nip5::{self, NIP5Error};
+
 // Implementation of the NIP1 protocol
 // https://github.com/nostr-protocol/nips/blob/master/01.md
 
 #[derive(Error, Debug, Eq, PartialEq)]
 pub enum NIP1Error {
-    #[error(r#"No metadata given"#)]
+    #[error("No metadata given")]
     NoMetadata,
 
     #[error("The client has an error")]
     ClientError(ClientError),
+
+    #[error("NIP05 error")]
+    NIP05Error(NIP5Error),
+
+    #[error("Given NIP05 is invalid with the given pubkey")]
+    BadNIP05,
 }
 
 impl From<ClientError> for NIP1Error {
     fn from(err: ClientError) -> Self {
         Self::ClientError(err)
+    }
+}
+
+impl From<NIP5Error> for NIP1Error {
+    fn from(err: NIP5Error) -> Self {
+        Self::NIP05Error(err)
     }
 }
 
@@ -37,7 +51,7 @@ impl Client {
     /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
     ///
     /// // Here we set the metadata of the identity but not the profile picture one
-    /// client.set_metadata(&identity, Some("Rust Nostr Client"), Some("Automated account for Rust Nostr Client tests :)"), None, 0).unwrap();
+    /// client.set_metadata(&identity, Some("Rust Nostr Client"), Some("Automated account for Rust Nostr Client tests :)"), None, None, 0).unwrap();
     /// ```
     pub fn set_metadata(
         &mut self,
@@ -45,6 +59,7 @@ impl Client {
         name: Option<&str>,
         about: Option<&str>,
         picture: Option<&str>,
+        nip05: Option<&str>,
         difficulty_target: u16,
     ) -> Result<Event, NIP1Error> {
         let mut json_body = json!({});
@@ -63,6 +78,17 @@ impl Client {
 
         if let Some(picture) = picture {
             json_body["picture"] = json!(picture);
+        }
+
+        if let Some(nip05) = nip05 {
+            // Check if the nip05 is valid
+            let validity = nip5::check_validity(nip05, &identity.public_key_str)?;
+
+            if !validity {
+                return Err(NIP1Error::BadNIP05);
+            }
+
+            json_body["nip05"] = json!(nip05);
         }
 
         let event = EventPrepare {
@@ -211,7 +237,7 @@ impl Client {
     /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
     ///
     /// // Here we set the recommended relay server to the url set in env
-    /// client.add_recommended_relay(&identity, "wss://relay.damus.io", 0).unwrap();
+    /// client.add_recommended_relay(&identity, env!("RELAY_URL"), 0).unwrap();
     /// ```
     pub fn add_recommended_relay(
         &mut self,

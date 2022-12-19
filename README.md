@@ -14,7 +14,7 @@ An ergonomic, [Nostr](https://github.com/nostr-protocol/nostr) API Client for Ru
 
 ```toml
 [dependencies]
-nostr_rust = "0.13"
+nostr_rust = "0.15"
 ```
 
 And then the code:
@@ -62,6 +62,7 @@ fn main() {
             &my_identity,
             Some("Rust Nostr Client test account"),
             Some("Hello Nostr! #5"),
+            None,
             None,
             0,
         )
@@ -122,10 +123,10 @@ fn main() {
 | [02](https://github.com/nostr-protocol/nips/blob/master/02.md) | ✅            | 0.3.0          | Contact List and Petnames                                    |
 | [03](https://github.com/nostr-protocol/nips/blob/master/03.md) | ❌            | Not supported  | OpenTimestamps Attestations for Events                       |
 | [04](https://github.com/nostr-protocol/nips/blob/master/04.md) | ✅            | 0.6.0          | Encrypted Direct Message                                     |
-| [05](https://github.com/nostr-protocol/nips/blob/master/05.md) | ❌            | Not supported  | Mapping Nostr keys to DNS-based internet identifiers         |
+| [05](https://github.com/nostr-protocol/nips/blob/master/05.md) | ✅            | 0.15.0  | Mapping Nostr keys to DNS-based internet identifiers         |
 | [06](https://github.com/nostr-protocol/nips/blob/master/06.md) | ❌            | Not supported  | Basic key derivation from mnemonic seed phrase               |
 | [07](https://github.com/nostr-protocol/nips/blob/master/07.md) | Not concerned | Not supported  | window.nostr capability for web browsers                     |
-| [08](https://github.com/nostr-protocol/nips/blob/master/08.md) | ❌            | Not supported  | Handling Mentions                                            |
+| [08](https://github.com/nostr-protocol/nips/blob/master/08.md) | Not concerned            | Not supported  | Handling Mentions                                            |
 | [09](https://github.com/nostr-protocol/nips/blob/master/09.md) | ✅            | 0.5.0          | Event Deletion                                               |
 | [10](https://github.com/nostr-protocol/nips/blob/master/10.md) | ❌            | Not supported  | Conventions for clients' use of e and p tags in text events. |
 | [11](https://github.com/nostr-protocol/nips/blob/master/11.md) | ✅            | 0.9.0          | Relay Information Document                                   |

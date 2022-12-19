@@ -20,7 +20,7 @@ pub struct ReqFilter {
     /// a list of pubkeys or prefixes, the pubkey of an event must be one of these
     pub authors: Option<Vec<String>>,
     /// a list of a kind numbers
-    pub kinds: Option<Vec<u8>>,
+    pub kinds: Option<Vec<u16>>,
     /// a list of event ids that are referenced in an "e" tag
     #[serde(rename = "#e")]
     pub e: Option<Vec<String>>,
