@@ -7,7 +7,7 @@ use crate::{
 use serde_json::json;
 use thiserror::Error;
 
-use super::nip5::{self, NIP5Error};
+use super::nip5::NIP5Error;
 
 // Implementation of the NIP1 protocol
 // https://github.com/nostr-protocol/nips/blob/master/01.md
