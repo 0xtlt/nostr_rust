@@ -5,6 +5,7 @@ use thiserror::Error;
 
 // Implementation of the NIP5 protocol
 // https://github.com/nostr-protocol/nips/blob/master/05.md
+// nip05 is at the following format: username@domain
 
 #[derive(Error, Debug, Eq, PartialEq)]
 pub enum NIP5Error {
@@ -26,7 +27,17 @@ pub struct NostrWellKnown {
     pub names: HashMap<String, String>,
 }
 
-// nip05 is at the following format: username@domain
+/// Transform event to NostrEvent with Proof of Work
+/// # Example
+/// ```rust
+/// use std::str::FromStr;
+/// use nostr_rust::nips::nip5::{check_validity, NIP5Error};
+///
+/// assert_eq!(check_validity("_@nostr.0xtlt.dev", "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6"), Ok(true));
+/// assert_eq!(check_validity("_@nostr.0xtlt.dev", "3235036bd0957dfb27ccda02d452d7c763be40c91a1ac082ba6983b25238388c"), Ok(false));
+/// assert_eq!(check_validity("_@", "3235036bd0957dfb27ccda02d452d7c763be40c91a1ac082ba6983b25238388c"), Err(NIP5Error::RequestFailed));
+///
+/// ```
 pub fn check_validity(nip05: &str, pubkey: &str) -> Result<bool, NIP5Error> {
     let pubkey_found = get_nip05(nip05)?;
 
