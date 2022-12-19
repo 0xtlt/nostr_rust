@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.15.0 - NIP 05 Support`
+## 0.15.0 - NIP 05 Support
 
 - Add `nips::nip05::check_validity` method
 - Add `nips::nip05::get_nip05` method
