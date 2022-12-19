@@ -43,6 +43,15 @@ pub fn check_validity(nip05: &str, pubkey: &str) -> Result<bool, NIP5Error> {
     Ok(pubkey_found == pubkey)
 }
 
+/// Get NIP05 Nostr Well Known of a domain
+///
+/// # Example
+/// ```rust
+/// use nostr_rust::nips::nip5::{get_nips05, NIP5Error};
+///
+/// assert_eq!(get_nips05("nostr.0xtlt.dev").is_ok(), true);
+/// assert_eq!(get_nips05("nostr.0xtlt.dev").unwrap().names.get("_").unwrap(), "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6");
+/// ```
 pub fn get_nips05(domain: &str) -> Result<NostrWellKnown, NIP5Error> {
     // Check the domain
     let relay_response: NostrWellKnown = match reqwest::blocking::Client::new()
