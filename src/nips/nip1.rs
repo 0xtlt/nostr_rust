@@ -142,7 +142,7 @@ impl Client {
     /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
     ///
     /// // Here we set the recommended relay server to the url set in env
-    /// client.add_recommended_relay(&identity, "wss://relay.damus.io", 0).unwrap();
+    /// client.add_recommended_relay(&identity, env!("RELAY_URL"), 0).unwrap();
     /// ```
     pub fn add_recommended_relay(
         &mut self,
