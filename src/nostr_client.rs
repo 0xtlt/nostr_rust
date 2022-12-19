@@ -59,7 +59,7 @@ impl Client {
     /// ```rust
     /// use nostr_rust::nostr_client::Client;
     /// let mut client = Client::new(vec![]).unwrap();
-    /// client.add_relay(vec![env!("RELAY_URL")]).unwrap();
+    /// client.add_relay(env!("RELAY_URL")).unwrap();
     /// ```
     pub fn add_relay(&mut self, relay: &str) -> Result<(), ClientError> {
         let client = match SimplifiedWS::new(relay) {
