@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.15.0 - NIP 05 Support
+
+- Add `nips::nip05::check_validity` method
+- Add `nips::nip05::get_nip05` method
+- Add `nips::nip05::get_nips05` method
+- Add `nips::nip05::NostrWellKnown` structure
+- Add `nips::nip05::NIP5Error` enum
+
 ## 0.14.0 - Event Verify
 
 - Add: `Event.get_content` method
