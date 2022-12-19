@@ -68,6 +68,14 @@ pub fn get_nips05(domain: &str) -> Result<NostrWellKnown, NIP5Error> {
     Ok(relay_response)
 }
 
+/// Get the public key of a NIP05 identifier
+///
+/// # Example
+/// ```rust
+/// use nostr_rust::nips::nip5::{get_nip05, NIP5Error};
+///
+/// assert_eq!(get_nip05("_@nostr.0xtlt.dev"), Ok("884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6".to_string()));
+/// ```
 pub fn get_nip05(nip05: &str) -> Result<String, NIP5Error> {
     let parts: Vec<&str> = nip05.split('@').collect();
 
