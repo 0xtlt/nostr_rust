@@ -12,8 +12,8 @@ version = "0.15.0"
 edition = "2021"
 
 [features]
-# Default is temporary until the library is more stable
-default = ["async"]
+# Sync by default
+default = ["sync"]
 async = ["futures", "tokio", "futures-util"]
 sync = ["reqwest/blocking"]
 

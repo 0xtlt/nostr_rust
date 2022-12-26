@@ -82,7 +82,7 @@ impl Client {
 
         if let Some(nip05) = nip05 {
             // Check if the nip05 is valid
-            let validity = nip5::check_validity(nip05, &identity.public_key_str)?;
+            let validity = crate::nips::nip5::check_validity(nip05, &identity.public_key_str)?;
 
             if !validity {
                 return Err(NIP1Error::BadNIP05);
