@@ -84,13 +84,13 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --test-threads=1 --features async
+          args: --features async -- --test-threads=1
 
       - name: Test with async feature disabled
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --test-threads=1
+          args: -- --test-threads=1
 
   docs:
     name: Docs
