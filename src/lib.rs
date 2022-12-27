@@ -2,9 +2,11 @@ use secp256k1::{PublicKey, SecretKey};
 use std::str::FromStr;
 
 pub mod bech32;
+pub mod blocking;
 pub mod events;
 pub mod keys;
 pub mod nips;
+pub mod non_blocking;
 pub mod nostr_client;
 pub mod req;
 pub mod utils;
