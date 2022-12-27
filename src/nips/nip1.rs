@@ -110,15 +110,14 @@ impl Client {
     /// ```rust
     /// use nostr_rust::{nostr_client::Client, Identity};
     /// use std::str::FromStr;
-    /// use async_std::task;
     ///
-    /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
-    /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
+    /// #[tokio::test]
+    /// async fn test_set_metadata() {
+    ///     let mut client = Client::new(vec![env!("RELAY_URL")]).await.unwrap();
+    ///     let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
     ///
-    /// task::spawn(async move {
-    ///     // Here we set the metadata of the identity asynchronously
     ///     client.set_metadata(&identity, Some("Rust Nostr Client"), Some("Automated account for Rust Nostr Client tests :)"), None, 0).await.unwrap();
-    /// });
+    /// }
     /// ```
     pub async fn set_metadata(
         &mut self,
@@ -196,16 +195,14 @@ impl Client {
     /// ```rust
     /// use nostr_rust::{nostr_client::Client, Identity, utils::get_timestamp};
     /// use std::str::FromStr;
-    /// use async_std::task;
     ///
-    /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
-    /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
-    /// let message = format!("Hello Nostr! {}", get_timestamp());
-    ///
-    /// task::spawn(async move {
-    ///     // Here we publish the text note asynchronously
+    /// #[tokio::test]
+    /// async fn test_publish_text_note() {
+    ///     let mut client = Client::new(vec![env!("RELAY_URL")]).await.unwrap();
+    ///     let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
+    ///     let message = format!("Hello Nostr! {}", get_timestamp());
     ///     client.publish_text_note(&identity, &message, &vec![], 0).await.unwrap();
-    /// });
+    /// }
     /// ```
     pub async fn publish_text_note(
         &mut self,
@@ -264,15 +261,13 @@ impl Client {
     /// ```rust
     /// use nostr_rust::{nostr_client::Client, Identity};
     /// use std::str::FromStr;
-    /// use async_std::task;
     ///
-    /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
-    /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
-    ///
-    /// task::spawn(async move {
-    ///     // Here we add the recommended relay server asynchronously
+    /// #[tokio::test]
+    /// async fn test_add_recommended_relay() {
+    ///     let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
+    ///     let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
     ///     client.add_recommended_relay(&identity, "wss://relay.damus.io", 0).await.unwrap();
-    /// });
+    /// }
     /// ```
     pub async fn add_recommended_relay(
         &mut self,

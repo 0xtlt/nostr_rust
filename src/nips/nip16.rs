@@ -108,24 +108,27 @@ impl Client {
     /// use nostr_rust::Identity;
     /// use nostr_rust::nips::nip16::NIP16Error;
     /// use std::str::FromStr;
-
-    /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
-    /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
-    /// let event = client.publish_replaceable_event(
-    ///  &identity,
-    ///   20000,
-    ///  "hello world",
-    ///   &[],
-    ///   0).unwrap_err();
-    /// assert_eq!(event, NIP16Error::EventKindOutOfRange);
     ///
-    /// let event = client.publish_replaceable_event(
-    ///  &identity,
-    ///  10,
-    ///  "hello world",
-    ///  &[],
-    ///  0).unwrap();
-    /// assert_eq!(event.kind, 10010)
+    /// #[tokio::test]
+    /// async fn test_publish_replaceable_event() {
+    ///     let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
+    ///     let mut client = Client::new(vec![env!("RELAY_URL")]).await.unwrap();
+    ///     let event = client.publish_replaceable_event(
+    ///      &identity,
+    ///       20000,
+    ///      "hello world",
+    ///       &[],
+    ///       0).await.unwrap_err();
+    ///     assert_eq!(event, NIP16Error::EventKindOutOfRange);
+    ///
+    ///     let event = client.publish_replaceable_event(
+    ///      &identity,
+    ///      10,
+    ///      "hello world",
+    ///      &[],
+    ///      0).await.unwrap();
+    ///     assert_eq!(event.kind, 10010)
+    /// }
     /// ```
     pub async fn publish_replaceable_event(
         &mut self,
@@ -219,27 +222,26 @@ impl Client {
     /// use nostr_rust::Identity;
     /// use nostr_rust::nips::nip16::NIP16Error;
     /// use std::str::FromStr;
-    /// use futures::executor::block_on;
     ///
-    /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
-    /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
-    /// let event = block_on(client.publish_ephemeral_event_async(
-    ///                         &identity,
-    ///                         10000,
-    ///                         "hello world",
-    ///                         &[],
-    ///                         0))
-    ///                         .unwrap_err();
-    /// assert_eq!(event, NIP16Error::EventKindOutOfRange);
-    /// let event = block_on(client.publish_ephemeral_event_async(
-    ///                         &identity,
-    ///                         5,
-    ///                         "hello world",
-    ///                         &[],
-    ///                         0))
-    ///                         .unwrap();
-    /// assert_eq!(event.kind, 20005);
-    ///
+    /// #[tokio::test]
+    /// async fn test_publish_ephemeral_event() {
+    ///     let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
+    ///     let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
+    ///     let event = client.publish_ephemeral_event_async(
+    ///         &identity,
+    ///         10000,
+    ///         "hello world",
+    ///         &[],
+    ///         0).await.unwrap_err();
+    ///     assert_eq!(event, NIP16Error::EventKindOutOfRange);
+    ///     let event = client.publish_ephemeral_event_async(
+    ///         &identity,
+    ///         5,
+    ///         "hello world",
+    ///         &[],
+    ///         0).await.unwrap();
+    ///     assert_eq!(event.kind, 20005);
+    /// }
     /// ```
     pub async fn publish_ephemeral_event_async(
         &mut self,

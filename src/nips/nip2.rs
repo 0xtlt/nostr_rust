@@ -100,20 +100,18 @@ impl Client {
     /// ```rust
     /// use nostr_rust::{nostr_client::Client, Identity, nips::nip2::ContactListTag};
     /// use std::str::FromStr;
-    /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
-    /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
     ///
-    /// // Here we set the contact list of the identity
-    /// let res = async {
-    ///   client.set_contact_list(&identity, vec![ContactListTag {
-    ///     key: "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6".to_string(),
-    ///     main_relay: Some(env!("RELAY_URL").to_string()),
-    ///     surname: Some("Rust Nostr Client".to_string()),
-    ///   }],
-    ///   0).await;
+    /// #[tokio::test]
+    /// async fn test_set_contact_list() {
+    ///     let mut client = Client::new(vec![env!("RELAY_URL")]).await.unwrap();
+    ///     let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
+    ///     client.set_contact_list(&identity, vec![ContactListTag {
+    ///       key: "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6".to_string(),
+    ///       main_relay: Some(env!("RELAY_URL").to_string()),
+    ///       surname: Some("Rust Nostr Client".to_string()),
+    ///     }],
+    ///     0).await;
     /// }
-    ///
-    /// res.await?;
     /// ```
     pub async fn set_contact_list(
         &mut self,
@@ -193,12 +191,12 @@ impl Client {
     /// ```rust
     /// use nostr_rust::{nostr_client::Client, Identity, nips::nip2::ContactListTag};
     /// use std::str::FromStr;
-    /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
-    /// let res = async {
-    ///   let contact_list = client.get_contact_list("884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6").await;
-    /// }
     ///
-    /// let contact_list = res.await?;
+    /// #[tokio::test]
+    /// async fn test_get_contact_list() {
+    ///     let mut client = Client::new(vec![env!("RELAY_URL")]).await.unwrap();
+    ///     client.get_contact_list("884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6").await.unwrap();
+    /// }
     /// ```
     pub async fn get_contact_list(
         &mut self,

@@ -51,14 +51,18 @@ impl Client {
     /// ```rust
     /// use nostr_rust::{nostr_client::Client, Identity};
     /// use std::str::FromStr;
-    /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
-    /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
-    /// // Create an event
-    /// let event = client.publish_text_note(&identity, "Hello Nostr! :)", &[], 0)
+    ///
+    /// #[tokio::test]
+    /// async fn test_delete_event() {
+    ///     let mut client = Client::new(vec![env!("RELAY_URL")]).await.unwrap();
+    ///     let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
+    ///     // Create an event
+    ///     let event = client.publish_text_note(&identity, "Hello Nostr! :)", &[], 0)
     ///   .await.unwrap();
     ///
-    /// // Delete the event
-    /// client.delete_event(&identity, &event.id, 0).await.unwrap();
+    ///     // Delete the event
+    ///     client.delete_event(&identity, &event.id, 0).await.unwrap();
+    /// }
     /// ```
     pub async fn delete_event(
         &mut self,
@@ -113,14 +117,18 @@ impl Client {
     /// ```rust
     /// use nostr_rust::{nostr_client::Client, Identity};
     /// use std::str::FromStr;
-    /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
-    /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
-    /// // Create an event
-    /// let event = client.publish_text_note(&identity, "Hello Nostr! :)", &[], 0)
+    ///
+    /// #[tokio::test]
+    /// async fn test_delete_event_with_reason() {
+    ///     let mut client = Client::new(vec![env!("RELAY_URL")]).await.unwrap();
+    ///     let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
+    ///     // Create an event
+    ///     let event = client.publish_text_note(&identity, "Hello Nostr! :)", &[], 0)
     ///  .await.unwrap();
     ///
-    /// // Delete the event with a reason
-    /// client.delete_event_with_reason(&identity, &event.id, "This is a reason", 0).await.unwrap();
+    ///     // Delete the event with a reason
+    ///     client.delete_event_with_reason(&identity, &event.id, "This is a reason", 0).await.unwrap();
+    /// }
     /// ```
     pub async fn delete_event_with_reason(
         &mut self,

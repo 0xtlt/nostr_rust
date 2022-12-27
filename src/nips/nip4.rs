@@ -151,15 +151,14 @@ impl Client {
     /// ```rust
     /// use nostr_rust::{nostr_client::Client, Identity};
     /// use std::str::FromStr;
-    /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
-    /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
-    /// let pubkey = "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6";
     ///
-    /// let res = async {
-    ///   client.send_private_message(&identity, pubkey, "Hello from Rust Nostr Client!", 0).await;
+    /// #[tokio::test]
+    /// async fn test_send_private_message() {
+    ///     let mut client = Client::new(vec![env!("RELAY_URL")]).await.unwrap();
+    ///     let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
+    ///     let pubkey = "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6";
+    ///     client.send_private_message(&identity, pubkey, "Hello from Rust Nostr Client!", 0).await.unwrap();
     /// }
-    ///
-    /// let event = res.await?;
     /// ```
     pub async fn send_private_message(
         &mut self,
@@ -237,14 +236,14 @@ impl Client {
     /// ```rust
     /// use nostr_rust::{nostr_client::Client, Identity};
     /// use std::str::FromStr;
-    /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
-    /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
-    /// let pubkey = "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6";
-    /// let res = async {
-    ///   let messages = client.get_private_events_with(&identity, pubkey, 10).await;
-    /// }
     ///
-    /// let messages = res.await?;
+    /// #[tokio::test]
+    /// async fn test_get_private_events_with() {
+    ///     let mut client = Client::new(vec![env!("RELAY_URL")]).await.unwrap();
+    ///     let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
+    ///     let pubkey = "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6";
+    ///     client.get_private_events_with(&identity, pubkey, 10).await.unwrap();
+    /// }
     /// ```
     pub async fn get_private_events_with(
         &mut self,
@@ -336,10 +335,14 @@ impl Client {
     /// ```rust
     /// use nostr_rust::{nostr_client::Client, Identity};
     /// use std::str::FromStr;
-    /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
-    /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
-    /// let pubkey = "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6";
-    /// let messages = client.get_private_messages_with(&identity, pubkey, 10).await.unwrap();
+    ///
+    /// #[tokio::test]
+    /// async fn test_get_private_messages_with() {
+    ///     let mut client = Client::new(vec![env!("RELAY_URL")]).await.unwrap();
+    ///     let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
+    ///     let pubkey = "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6";
+    ///     let messages = client.get_private_messages_with(&identity, pubkey, 10).await.unwrap();
+    /// }
     /// ```
     pub async fn get_private_messages_with(
         &mut self,

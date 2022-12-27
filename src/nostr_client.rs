@@ -67,7 +67,11 @@ impl Client {
     /// # Example
     /// ```rust, async_await
     /// use nostr_rust::nostr_client::Client;
-    /// let client = await Client::new(vec![env!("RELAY_URL")]).await.unwrap();
+    ///
+    /// #[tokio::test]
+    /// async fn test_new_client() {
+    ///     let client = Client::new(vec![env!("RELAY_URL")]).await.unwrap();
+    /// }
     /// ```
     pub async fn new(default_relays: Vec<&str>) -> Result<Self, ClientError> {
         let mut client = Self {
@@ -114,8 +118,12 @@ impl Client {
     /// # Example
     /// ```rust
     /// use nostr_rust::nostr_client::Client;
-    /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
-    /// client.add_relay("wss://relay.damus.io").await.unwrap();
+    ///
+    /// #[tokio::test]
+    /// async fn test_add_relay() {
+    ///     let mut client = Client::new(vec![env!("RELAY_URL")]).await.unwrap();
+    ///     client.add_relay("wss://relay.damus.io").await.unwrap();
+    /// }
     /// ```
     pub async fn add_relay(&mut self, relay: &str) -> Result<(), ClientError> {
         let client = match SimplifiedWS::new(relay).await {
@@ -165,8 +173,12 @@ impl Client {
     /// # Example
     /// ```rust
     /// use nostr_rust::nostr_client::Client;
-    /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
-    /// client.remove_relay(env!("RELAY_URL")).await.unwrap();
+    ///
+    /// #[tokio::test]
+    /// async fn test_remove_relay() {
+    ///     let mut client = Client::new(vec![env!("RELAY_URL")]).await.unwrap();
+    ///     client.remove_relay(env!("RELAY_URL")).await.unwrap();
+    /// }
     /// ```
     pub async fn remove_relay(&mut self, relay: &str) -> Result<(), ClientError> {
         if !self.relays.contains_key(relay) {
@@ -293,39 +305,42 @@ impl Client {
     ///   Ok(())
     /// }
     ///
-    /// let mut client = Arc::new(Mutex::new(Client::new(vec![env!("RELAY_URL")]).unwrap()));
+    /// #[tokio::test]
+    /// async fn test_next_data() {
+    ///     let mut client = Arc::new(Mutex::new(Client::new(vec![env!("RELAY_URL")]).await.unwrap()));
     ///
-    /// // Run a new thread to listen
-    /// let nostr_clone = client.clone();
-    /// let nostr_thread = thread::spawn(move || loop {
-    ///    let events = nostr_clone.lock().unwrap().next_data().await.unwrap();
+    ///     // Run a new thread to listen
+    ///     let nostr_clone = client.clone();
+    ///     let nostr_thread = thread::spawn(move || loop {
+    ///         let events = nostr_clone.lock().unwrap().next_data().await.unwrap();
     ///    
-    ///   for (relay_url, message) in events.iter() {
-    ///     handle_message(relay_url, message).unwrap();
-    ///   }
-    /// });
+    ///         for (relay_url, message) in events.iter() {
+    ///             handle_message(relay_url, message).unwrap();
+    ///         }
+    ///     });
     ///
-    /// // Subscribe to the most beautiful Nostr profile event
-    /// client
-    /// .lock()
-    /// .unwrap()
-    /// .subscribe(vec![ReqFilter {
-    ///     ids: None,
-    ///     authors: Some(vec![
-    ///         "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6".to_string(),
-    ///     ]),
-    ///     kinds: None,
-    ///     e: None,
-    ///     p: None,
-    ///     since: None,
-    ///     until: None,
-    ///     limit: Some(1),
-    /// }])
-    /// .await
-    /// .unwrap();
+    ///     // Subscribe to the most beautiful Nostr profile event
+    ///     client
+    ///     .lock()
+    ///     .unwrap()
+    ///     .subscribe(vec![ReqFilter {
+    ///         ids: None,
+    ///         authors: Some(vec![
+    ///             "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6".to_string(),
+    ///         ]),
+    ///         kinds: None,
+    ///         e: None,
+    ///         p: None,
+    ///         since: None,
+    ///         until: None,
+    ///         limit: Some(1),
+    ///     }])
+    ///     .await
+    ///     .unwrap();
     ///
     /// // Wait 3s for the thread to finish
     /// std::thread::sleep(std::time::Duration::from_secs(3));
+    /// }
     /// ```
     pub async fn next_data(&mut self) -> Result<Vec<(String, tungstenite::Message)>, ClientError> {
         let mut events: Vec<(String, tungstenite::Message)> = Vec::new();
@@ -376,22 +391,26 @@ impl Client {
     /// # Example
     /// ```rust
     /// use nostr_rust::{nostr_client::Client, req::ReqFilter};
-    /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
-    /// client
-    /// .subscribe(vec![ReqFilter { // None means generate a random ID
-    ///     ids: None,
-    ///     authors: Some(vec![
-    ///         "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6".to_string(),
-    ///     ]),
-    ///     kinds: None,
-    ///     e: None,
-    ///     p: None,
-    ///     since: None,
-    ///     until: None,
-    ///     limit: Some(1),
-    /// }])
-    /// .await
-    /// .unwrap();
+    ///
+    /// #[tokio::test]
+    /// async fn test_subscribe() {
+    ///     let mut client = Client::new(vec![env!("RELAY_URL")]).await.unwrap();
+    ///     client
+    ///     .subscribe(vec![ReqFilter { // None means generate a random ID
+    ///         ids: None,
+    ///         authors: Some(vec![
+    ///             "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6".to_string(),
+    ///         ]),
+    ///         kinds: None,
+    ///         e: None,
+    ///         p: None,
+    ///         since: None,
+    ///         until: None,
+    ///         limit: Some(1),
+    ///     }])
+    ///     .await
+    ///     .unwrap();
+    /// }
     /// ```
     pub async fn subscribe(&mut self, filters: Vec<ReqFilter>) -> Result<String, ClientError> {
         let req = Req::new(None, filters);
@@ -449,22 +468,26 @@ impl Client {
     /// # Example
     /// ```rust
     /// use nostr_rust::{nostr_client::Client, req::ReqFilter};
-    /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
-    /// client
-    /// .subscribe_with_id("my_subscription_id", vec![ReqFilter {
-    ///    ids: None,
-    ///    authors: Some(vec![
-    ///      "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6".to_string(),
-    ///    ]),
-    ///    kinds: None,
-    ///    e: None,
-    ///    p: None,
-    ///    since: None,
-    ///    until: None,
-    ///    limit: Some(1),
-    /// }])
-    /// .await
-    /// .unwrap();
+    ///
+    /// #[tokio::test]
+    /// async fn test_subscribe_with_id() {
+    ///     let mut client = Client::new(vec![env!("RELAY_URL")]).await.unwrap();
+    ///     client
+    ///     .subscribe_with_id("my_subscription_id", vec![ReqFilter {
+    ///        ids: None,
+    ///        authors: Some(vec![
+    ///          "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6".to_string(),
+    ///        ]),
+    ///        kinds: None,
+    ///        e: None,
+    ///        p: None,
+    ///        since: None,
+    ///        until: None,
+    ///        limit: Some(1),
+    ///     }])
+    ///     .await
+    ///     .unwrap();
+    /// }
     /// ```
     pub async fn subscribe_with_id(
         &mut self,
@@ -520,23 +543,27 @@ impl Client {
     /// # Example
     /// ```rust
     /// use nostr_rust::{nostr_client::Client, req::ReqFilter};
-    /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
-    /// let subscription_id = client
-    /// .subscribe(vec![ReqFilter {
-    ///    ids: None,
-    ///   authors: Some(vec![
-    ///        "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6".to_string(),
-    ///   ]),
-    ///  kinds: None,
-    ///  e: None,
-    ///  p: None,
-    ///  since: None,
-    ///  until: None,
-    ///  limit: Some(1),
-    /// }])
-    /// .await
-    /// .unwrap();
-    /// client.unsubscribe(&subscription_id).await.unwrap();
+    ///
+    /// #[tokio::test]
+    /// async fn test_unsubscribe() {
+    ///     let mut client = Client::new(vec![env!("RELAY_URL")]).await.unwrap();
+    ///     let subscription_id = client
+    ///     .subscribe(vec![ReqFilter {
+    ///        ids: None,
+    ///       authors: Some(vec![
+    ///            "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6".to_string(),
+    ///       ]),
+    ///      kinds: None,
+    ///      e: None,
+    ///      p: None,
+    ///      since: None,
+    ///      until: None,
+    ///      limit: Some(1),
+    ///     }])
+    ///     .await
+    ///     .unwrap();
+    ///     client.unsubscribe(&subscription_id).await.unwrap();
+    /// }
     /// ```
     pub async fn unsubscribe(&mut self, subscription_id: &str) -> Result<(), ClientError> {
         let message = Message::text(json!(["CLOSE", subscription_id]).to_string());
@@ -637,18 +664,22 @@ impl Client {
     /// # Example
     /// ```rust
     /// use nostr_rust::{nostr_client::Client, req::ReqFilter};
-    /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
-    /// let events = client.get_events_of(vec![ReqFilter {
-    ///    ids: None,
-    ///    authors: Some(vec!["884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6".to_string()]),
-    ///    kinds: Some(vec![3]),
-    ///    e: None,
-    ///    p: None,
-    ///    since: None,
-    ///    until: None,
-    ///    limit: Some(1),
-    /// }]).await
-    /// .unwrap();
+    ///
+    /// #[tokio::test]
+    /// async fn test_get_events_of() {
+    ///     let mut client = Client::new(vec![env!("RELAY_URL")]).await.unwrap();
+    ///     let events = client.get_events_of(vec![ReqFilter {
+    ///        ids: None,
+    ///        authors: Some(vec!["884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6".to_string()]),
+    ///        kinds: Some(vec![3]),
+    ///        e: None,
+    ///        p: None,
+    ///        since: None,
+    ///        until: None,
+    ///        limit: Some(1),
+    ///     }]).await
+    ///     .unwrap();
+    /// }
     /// ```
     pub async fn get_events_of(
         &mut self,
