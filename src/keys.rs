@@ -1,8 +1,6 @@
 use rand::rngs::OsRng;
 use secp256k1::{PublicKey, SecretKey, SECP256K1};
 
-// TODO: implement bech32 keys
-
 /// Get a random secret key
 /// # Example
 /// ```

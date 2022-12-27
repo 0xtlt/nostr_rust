@@ -8,8 +8,14 @@ keywords = ["nostr", "rust", "protocol", "encryption", "decryption"]
 categories = ["api-bindings"]
 license = "MIT"
 authors = ["Thomas Tastet"]
-version = "0.15.0"
+version = "0.16.0"
 edition = "2021"
+
+[features]
+# Sync by default
+default = ["sync"]
+async = ["futures", "tokio", "futures-util"]
+sync = ["reqwest/blocking"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -23,9 +29,13 @@ bech32 = "0.9"
 rand = "0.8"
 secp256k1 = { version = "0.25", features = ["bitcoin_hashes", "global-context", "rand-std"] }
 tungstenite = { version = "0.18", default-features = false, features = ["handshake", "rustls-tls-webpki-roots"] }
+tokio-tungstenite = { version = "0.18", default-features = true, features = ["handshake", "rustls-tls-webpki-roots"] }
 url = "2.3"
 base64 = "0.20"
 aes = "0.8"
 cbc = { version = "0.1", features = ["alloc"] }
 thiserror = "1"
-reqwest = { version = "0.11", default-features = false, features = ["json", "rustls-tls-webpki-roots", "blocking"] }
+reqwest = { version = "0.11", default-features = false, features = ["json", "rustls-tls-webpki-roots"] }
+tokio = { version = "1.22", optional = true, features = ["macros"] }
+futures-util = { version = "0.3", optional = true }
+futures = { version = "0.3", optional = true }

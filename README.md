@@ -14,7 +14,7 @@ An ergonomic, [Nostr](https://github.com/nostr-protocol/nostr) API Client for Ru
 
 ```toml
 [dependencies]
-nostr_rust = "0.15"
+nostr_rust = "0.16"
 ```
 
 And then the code:
@@ -111,8 +111,13 @@ fn main() {
     handle_thread.join().unwrap();
 }
 
+## Async feature
 
+If you want to use the async version of the client, you can enable the `async` feature:
 
+```toml
+[dependencies]
+nostr_rust = { version = "*0.16*", features = ["async"] }
 ```
 
 ## NIPs Supported

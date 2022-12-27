@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.16.0 - Async support
+
+- Add: `async` feature to enable async support and disable sync
+
 ## 0.15.0 - NIP 05 Support
 
 - Add `nips::nip05::check_validity` method
