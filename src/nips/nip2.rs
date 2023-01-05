@@ -10,7 +10,7 @@ use thiserror::Error;
 // Implementation of the NIP2 protocol
 // https://github.com/nostr-protocol/nips/blob/master/02.md
 
-#[derive(Error, Debug, Eq, PartialEq)]
+#[derive(Error, Debug)]
 pub enum NIP2Error {
     #[error("The client has an error")]
     ClientError(ClientError),

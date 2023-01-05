@@ -7,7 +7,7 @@ use crate::{
     Identity,
 };
 
-#[derive(Error, Debug, Eq, PartialEq)]
+#[derive(Error, Debug)]
 pub enum NIP25Error {
     #[error("The client has an error")]
     ClientError(ClientError),

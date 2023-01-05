@@ -6,7 +6,7 @@ use thiserror::Error;
 // Implementation of the NIP13 protocol
 // https://github.com/nostr-protocol/nips/blob/master/13.md
 
-#[derive(Error, Debug, PartialEq)]
+#[derive(Error, Debug)]
 pub enum NIP13Error {
     #[error("Content Id is invalid")]
     InvalidContentId(FromHexError),

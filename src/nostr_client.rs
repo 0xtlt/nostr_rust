@@ -7,7 +7,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use thiserror::Error;
 
-#[derive(Error, Debug, Eq, PartialEq)]
+#[derive(Error, Debug)]
 pub enum ClientError {
     #[error("Error while trying to connect to the websocket server")]
     WSError(websocket::SimplifiedWSError),
@@ -17,6 +17,9 @@ pub enum ClientError {
 
     #[error("Relay does not exist")]
     RelayDoesNotExist,
+
+    #[error("Serde Error: {}", _0)]
+    SerdeError(#[from] serde_json::Error),
 }
 
 impl From<websocket::SimplifiedWSError> for ClientError {
@@ -645,13 +648,13 @@ impl Client {
         }
 
         // unsubscribe
-        self.unsubscribe(&id).unwrap();
+        self.unsubscribe(&id)?;
 
         // Get the events
         if let Some(messages) = self.get_events(&id) {
             for message in messages {
-                let event: Value = serde_json::from_str(&message.to_string()).unwrap();
-                let event_object: Event = serde_json::from_value(event[2].clone()).unwrap();
+                let event: Value = serde_json::from_str(&message.to_string())?;
+                let event_object: Event = serde_json::from_value(event[2].clone())?;
                 events.push(event_object);
             }
         }
@@ -712,13 +715,13 @@ impl Client {
         }
 
         // unsubscribe
-        self.unsubscribe(&id).await.unwrap();
+        self.unsubscribe(&id).await;
 
         // Get the events
         if let Some(messages) = self.get_events(&id) {
             for message in messages {
-                let event: Value = serde_json::from_str(&message.to_string()).unwrap();
-                let event_object: Event = serde_json::from_value(event[2].clone()).unwrap();
+                let event: Value = serde_json::from_str(&message.to_string())?;
+                let event_object: Event = serde_json::from_value(event[2].clone())?;
                 events.push(event_object);
             }
         }

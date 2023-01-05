@@ -6,7 +6,7 @@ use crate::{
 };
 use thiserror::Error;
 
-#[derive(Error, Debug, Eq, PartialEq)]
+#[derive(Error, Debug)]
 pub enum NIP9Error {
     #[error("The client has an error")]
     ClientError(ClientError),

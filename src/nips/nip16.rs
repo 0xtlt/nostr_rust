@@ -15,7 +15,7 @@ use thiserror::Error;
 // Implementation of the NIP16 protocol
 // https://github.com/nostr-protocol/nips/blob/master/16.md
 
-#[derive(Error, Debug, Eq, PartialEq)]
+#[derive(Error, Debug)]
 pub enum NIP16Error {
     #[error("Error while trying to connect to the websocket server")]
     WSError(websocket::SimplifiedWSError),
