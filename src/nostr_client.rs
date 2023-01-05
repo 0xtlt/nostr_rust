@@ -632,7 +632,7 @@ impl Client {
             let mut break_loop = false;
 
             for (_, message) in data {
-                let event: Value = serde_json::from_str(&message.to_string()).unwrap();
+                let event: Value = serde_json::from_str(&message.to_string())?;
 
                 if event[0] == "EOSE" && event[1].as_str() == Some(&id) {
                     break_loop = true;
