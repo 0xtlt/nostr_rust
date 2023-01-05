@@ -178,7 +178,7 @@ impl Client {
     ///                         &[],
     ///                         0)
     ///                         .unwrap_err();
-    /// assert_eq!(event, NIP16Error::EventKindOutOfRange);
+    /// assert_eq!(format!("{:?}",event), format!("{:?}",NIP16Error::EventKindOutOfRange));
     /// let event = client.publish_ephemeral_event(&identity, 5, "hello world", &[],
     /// 0).unwrap();
     /// assert_eq!(event.kind, 20005);
