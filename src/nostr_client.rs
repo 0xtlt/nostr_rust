@@ -715,7 +715,7 @@ impl Client {
         }
 
         // unsubscribe
-        self.unsubscribe(&id).await;
+        self.unsubscribe(&id).await?;
 
         // Get the events
         if let Some(messages) = self.get_events(&id) {

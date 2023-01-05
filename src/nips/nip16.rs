@@ -60,7 +60,7 @@ impl Client {
     ///  "hello world",
     ///  &[],
     ///  0).unwrap_err();
-    /// assert_eq!(event, NIP16Error::EventKindOutOfRange);
+    /// assert_eq!(format!("{:?}", event), "EventKindOutOfRange");
     ///
     /// let event = client.publish_replaceable_event(
     ///  &identity,
