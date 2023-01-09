@@ -262,3 +262,67 @@ impl fmt::Display for Event {
         write!(f, "{}", serde_json::to_string(&self).unwrap())
     }
 }
+
+/// Extract events from a string
+///
+/// # Example
+/// ```rust
+/// use nostr_rust::events::extract_events;
+///
+/// let txt = "[\"EVENT\",\"deb0ab5bd829d1642c926b7897b078d027ca41870d0a499c1fd76e4b5af5ccbd\",{\"id\":\"f0382d932ddc5876bad3f9c5fdb84fb4c2af7ccefebfb491f13fbc47c38f8ae4\",\"kind\":1,\"pubkey\":\"884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6\",\"created_at\":1673131597,\"content\":\"Does anyone know a good crate rust to handle a Lightning node?\",\"tags\":[],\"sig\":\"53a629bae11dace9b487700cbe8e85058a3d7b6989e1e0bdd6eb4fb0201a3779742682f65ca37782c0cb93019a170e0a368bb033dfce1102df71420e24e2b784\"}]";
+///
+/// let events = extract_events(txt);
+/// assert_eq!(events.len(), 1);
+/// ```
+pub fn extract_events(message: &str) -> Vec<Event> {
+    let mut events = vec![];
+    let json = serde_json::from_str::<serde_json::Value>(message);
+
+    if json.is_err() {
+        return events;
+    }
+
+    let json = json.unwrap();
+
+    if !json.is_array() {
+        return events;
+    }
+
+    let json = json.as_array().unwrap();
+
+    for event in json {
+        if !event.is_object() {
+            continue;
+        }
+
+        let event = serde_json::from_value::<Event>(event.clone());
+
+        if event.is_err() {
+            continue;
+        }
+
+        events.push(event.unwrap());
+    }
+
+    events
+}
+
+/// Extract events from a websocket message
+///
+/// # Example
+/// ```rust
+/// use nostr_rust::events::extract_events_ws;
+/// use tungstenite::Message;
+///
+/// let txt = "[\"EVENT\",\"deb0ab5bd829d1642c926b7897b078d027ca41870d0a499c1fd76e4b5af5ccbd\",{\"id\":\"f0382d932ddc5876bad3f9c5fdb84fb4c2af7ccefebfb491f13fbc47c38f8ae4\",\"kind\":1,\"pubkey\":\"884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6\",\"created_at\":1673131597,\"content\":\"Does anyone know a good crate rust to handle a Lightning node?\",\"tags\":[],\"sig\":\"53a629bae11dace9b487700cbe8e85058a3d7b6989e1e0bdd6eb4fb0201a3779742682f65ca37782c0cb93019a170e0a368bb033dfce1102df71420e24e2b784\"}]";
+///
+/// let events = extract_events_ws(Message::Text(txt.to_string()));
+/// assert_eq!(events.len(), 1);
+/// ```
+pub fn extract_events_ws(message: &crate::Message) -> Vec<Event> {
+    if message.is_text() {
+        return extract_events(message.to_text().unwrap());
+    }
+
+    vec![]
+}

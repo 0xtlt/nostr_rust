@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.17.0
+
+- Add: `event::extract_events` method
+- Add: `event::extract_events_ws` method
+
 ## 0.16.0 - Async support
 
 - Add: `async` feature to enable async support and disable sync

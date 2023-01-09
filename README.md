@@ -26,10 +26,13 @@ use std::{
     thread,
 };
 
-use nostr_rust::{nostr_client::Client, req::ReqFilter, Identity, Message};
+use nostr_rust::{nostr_client::Client, req::ReqFilter, Identity, Message, events::extract_events_ws};
 
 fn handle_message(relay_url: &String, message: &Message) -> Result<(), String> {
     println!("Received message from {}: {:?}", relay_url, message);
+
+    let events = extract_events_ws(message);
+    println!("Events: {:?}", events);
 
     Ok(())
 }
