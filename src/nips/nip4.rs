@@ -13,7 +13,8 @@ use aes::{
     cipher::{block_padding::Pkcs7, BlockDecryptMut, BlockEncryptMut, KeyIvInit},
     Aes256,
 };
-use base64::{decode, encode};
+use base64::engine::general_purpose;
+use base64::Engine;
 use cbc::{Decryptor, Encryptor};
 use secp256k1::{ecdh, rand::random, PublicKey, SecretKey, XOnlyPublicKey};
 use serde::{Deserialize, Serialize};
@@ -67,10 +68,15 @@ pub fn decrypt(
         return Err(Error::InvalidContentFormat);
     }
 
-    let mut encrypted_content: Vec<u8> =
-        decode(parsed_content[0]).map_err(|_| Error::Base64DecodeError)?;
+    let mut encrypted_content: Vec<u8> = general_purpose::STANDARD_NO_PAD
+        .encode(parsed_content[0])
+        .as_bytes()
+        .to_vec();
 
-    let iv: Vec<u8> = decode(parsed_content[1]).map_err(|_| Error::Base64DecodeError)?;
+    let iv: Vec<u8> = general_purpose::STANDARD_NO_PAD
+        .encode(parsed_content[1])
+        .as_bytes()
+        .to_vec();
     let key: Vec<u8> = generate_shared_key(sk, pk)?;
 
     let cipher = Aes256CbcDec::new(key.as_slice().into(), iv.as_slice().into());
@@ -88,7 +94,11 @@ pub fn encrypt(sk: &SecretKey, pk: &XOnlyPublicKey, text: &str) -> Result<String
     let cipher = Aes256CbcEnc::new(key.as_slice().into(), &iv.into());
     let result: Vec<u8> = cipher.encrypt_padded_vec_mut::<Pkcs7>(text.as_bytes());
 
-    Ok(format!("{}?iv={}", encode(result), encode(iv)))
+    Ok(format!(
+        "{}?iv={}",
+        general_purpose::STANDARD_NO_PAD.encode(result),
+        general_purpose::STANDARD_NO_PAD.encode(iv)
+    ))
 }
 
 fn generate_shared_key(sk: &SecretKey, pk: &XOnlyPublicKey) -> Result<Vec<u8>, Error> {

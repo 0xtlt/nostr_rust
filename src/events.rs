@@ -316,7 +316,7 @@ pub fn extract_events(message: &str) -> Vec<Event> {
 ///
 /// let txt = "[\"EVENT\",\"deb0ab5bd829d1642c926b7897b078d027ca41870d0a499c1fd76e4b5af5ccbd\",{\"id\":\"f0382d932ddc5876bad3f9c5fdb84fb4c2af7ccefebfb491f13fbc47c38f8ae4\",\"kind\":1,\"pubkey\":\"884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6\",\"created_at\":1673131597,\"content\":\"Does anyone know a good crate rust to handle a Lightning node?\",\"tags\":[],\"sig\":\"53a629bae11dace9b487700cbe8e85058a3d7b6989e1e0bdd6eb4fb0201a3779742682f65ca37782c0cb93019a170e0a368bb033dfce1102df71420e24e2b784\"}]";
 ///
-/// let events = extract_events_ws(Message::Text(txt.to_string()));
+/// let events = extract_events_ws(&Message::Text(txt.to_string()));
 /// assert_eq!(events.len(), 1);
 /// ```
 pub fn extract_events_ws(message: &crate::Message) -> Vec<Event> {
