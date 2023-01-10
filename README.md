@@ -14,7 +14,7 @@ An ergonomic, [Nostr](https://github.com/nostr-protocol/nostr) API Client for Ru
 
 ```toml
 [dependencies]
-nostr_rust = "0.16"
+nostr_rust = "*"
 ```
 
 And then the code:
@@ -26,7 +26,7 @@ use std::{
     thread,
 };
 
-use nostr_rust::{nostr_client::Client, req::ReqFilter, Identity, Message, events::extract_events_ws};
+use nostr_rust::{nostr_client::Client, req::ReqFilter, Identity, Message, events::extract_events_ws, utils::parse_content_tags};
 
 fn handle_message(relay_url: &String, message: &Message) -> Result<(), String> {
     println!("Received message from {}: {:?}", relay_url, message);
@@ -96,6 +96,11 @@ fn main() {
         .unsubscribe(&subscription_id)
         .unwrap();
 
+    // You can use the parse content tags method to get the content and the tags from a string
+    // let tags = parse_content_tags("hello #world", vec![], Some(nostr_rust::DEFAULT_HASHTAG), true, true);
+    // assert_eq!(tags.content, "hello #world");
+    //  assert_eq!(tags.tags, vec![vec!["t", "world"]]);
+
     // Publish a text note
     nostr_client
         .lock()
@@ -120,7 +125,7 @@ If you want to use the async version of the client, you can enable the `async` f
 
 ```toml
 [dependencies]
-nostr_rust = { version = "*0.16*", features = ["async"] }
+nostr_rust = { version = "*", features = ["async"] }
 ```
 
 ## NIPs Supported
