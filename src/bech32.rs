@@ -4,6 +4,7 @@ use thiserror::Error;
 pub enum ToBech32Kind {
     SecretKey,
     PublicKey,
+    Note,
 }
 
 #[derive(Debug, Error)]
@@ -36,8 +37,8 @@ pub fn to_bech32(kind: ToBech32Kind, key: &str) -> Result<String, Bech32Error> {
         ToBech32Kind::SecretKey => {
             if key.starts_with("nsec") {
                 Ok(key)
-            } else if key.starts_with("npub") {
-                return Err(Bech32Error::InvalidKey("npub".to_string()));
+            } else if key.starts_with("npub") || key.starts_with("note") {
+                return Err(Bech32Error::InvalidKey("npub or note".to_string()));
             } else {
                 return Ok(bech32::encode(
                     "nsec",
@@ -49,11 +50,24 @@ pub fn to_bech32(kind: ToBech32Kind, key: &str) -> Result<String, Bech32Error> {
         ToBech32Kind::PublicKey => {
             if key.starts_with("npub") {
                 Ok(key)
-            } else if key.starts_with("nsec") {
-                return Err(Bech32Error::InvalidKey("nsec".to_string()));
+            } else if key.starts_with("nsec") || key.starts_with("note") {
+                return Err(Bech32Error::InvalidKey("nsec or note".to_string()));
             } else {
                 return Ok(bech32::encode(
                     "npub",
+                    hex::decode(key).unwrap().to_base32(),
+                    bech32::Variant::Bech32,
+                )?);
+            }
+        }
+        ToBech32Kind::Note => {
+            if key.starts_with("note") {
+                Ok(key)
+            } else if key.starts_with("nsec") || key.starts_with("npub") {
+                return Err(Bech32Error::InvalidKey("nsec or npub".to_string()));
+            } else {
+                return Ok(bech32::encode(
+                    "note",
                     hex::decode(key).unwrap().to_base32(),
                     bech32::Variant::Bech32,
                 )?);
@@ -95,6 +109,19 @@ pub fn from_hb_to_hex(kind: ToBech32Kind, key: &str) -> Result<String, Bech32Err
                 Ok(hex_str)
             } else if key.starts_with("nsec") {
                 return Err(Bech32Error::InvalidKey("nsec".to_string()));
+            } else {
+                return Ok(key);
+            }
+        }
+        ToBech32Kind::Note => {
+            if key.starts_with("note") {
+                let data = bech32::decode(&key)?.1;
+                let decoded = Vec::<u8>::from_base32(&data)?;
+                let hex_str = hex::encode(decoded);
+
+                Ok(hex_str)
+            } else if key.starts_with("nsec") || key.starts_with("npub") {
+                return Err(Bech32Error::InvalidKey("nsec or npub".to_string()));
             } else {
                 return Ok(key);
             }

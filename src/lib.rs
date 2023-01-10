@@ -10,6 +10,8 @@ pub mod req;
 pub mod utils;
 pub mod websocket;
 
+pub const DEFAULT_HASHTAG: &str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
 pub type Message = tungstenite::Message;
 
 /// Nostr Identity with secret and public keys

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.18.0 - Content
+
+- Add: `utils::parse_content_tags` method
+- Add: `utils::ParsedTagsResult` struct
+
 ## 0.17.0
 
 - Add: `event::extract_events` method
