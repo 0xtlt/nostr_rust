@@ -50,7 +50,8 @@ pub struct ParsedTagsResult {
 /// ```rust
 /// use nostr_rust::utils::parse_content_tags;
 /// let tags = parse_content_tags("hello #world", vec![], Some(nostr_rust::DEFAULT_HASHTAG), true, true);
-/// assert_eq!(tags, vec![vec!["t", "world"]]);
+/// assert_eq!(tags.content, "hello #world");
+/// assert_eq!(tags.tags, vec![vec!["t", "world"]]);
 /// ```
 pub fn parse_content_tags(
     text: &str,
