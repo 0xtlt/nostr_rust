@@ -654,8 +654,13 @@ impl Client {
         if let Some(messages) = self.get_events(&id) {
             for message in messages {
                 let event: Value = serde_json::from_str(&message.to_string())?;
-                let event_object: Event = serde_json::from_value(event[2].clone())?;
-                events.push(event_object);
+                let event_object = serde_json::from_value::<Event>(event[2].clone());
+
+                if event_object.is_err() {
+                    continue;
+                }
+
+                events.push(event_object.unwrap());
             }
         }
         Ok(events)
