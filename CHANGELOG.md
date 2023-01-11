@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.19.0
+
+- Add: `Identity::make_event` method
+- Add: `Client::broadcast_event` method
+
 ## 0.18.0 - Content
 
 - Add: `utils::parse_content_tags` method

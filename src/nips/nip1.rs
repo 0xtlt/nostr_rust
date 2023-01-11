@@ -190,19 +190,64 @@ impl Client {
     }
 
     #[cfg(feature = "async")]
+    /// Broadcast event
+    ///
+    /// # Example
+    /// ```rust
+    /// use nostr_rust::{nostr_client::Client, Identity, utils::get_timestamp};
+    /// use std::str::FromStr;
+    /// use serde_json::json;
+    ///
+    /// async fn test_broadcast_event() {
+    ///     let mut client = Client::new(vec![env!("RELAY_URL")]).await.unwrap();
+    ///     let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
+    ///
+    ///    let event = identity.make_event(1, "Hello Nostr!", &vec![], 0);
+    ///    client.broadcast_event(&event).await.unwrap();
+    /// }
+    ///
+    /// tokio::runtime::Runtime::new().unwrap().block_on(test_broadcast_event());
+    /// ```
+    pub async fn broadcast_event(&mut self, event: &Event) -> Result<(), NIP1Error> {
+        self.publish_event(event).await?;
+        Ok(())
+    }
+
+    #[cfg(not(feature = "async"))]
+    /// Broadcast event
+    ///
+    /// # Example
+    /// ```rust
+    /// use nostr_rust::{nostr_client::Client, Identity, utils::get_timestamp};
+    /// use std::str::FromStr;
+    /// use serde_json::json;
+    ///
+    /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
+    /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
+    ///
+    /// let event = identity.make_event(1, "Hello Nostr!", &vec![], 0);
+    /// client.broadcast_event(&event).unwrap();
+    /// ```
+    pub fn broadcast_event(&mut self, event: &Event) -> Result<(), NIP1Error> {
+        self.publish_event(event)?;
+        Ok(())
+    }
+
+    #[cfg(feature = "async")]
     /// Publish a text note (text_note) event asynchronously
     /// # Example
     /// ```rust
     /// use nostr_rust::{nostr_client::Client, Identity, utils::get_timestamp};
     /// use std::str::FromStr;
     ///
-    /// #[tokio::test]
     /// async fn test_publish_text_note() {
     ///     let mut client = Client::new(vec![env!("RELAY_URL")]).await.unwrap();
     ///     let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
     ///     let message = format!("Hello Nostr! {}", get_timestamp());
     ///     client.publish_text_note(&identity, &message, &vec![], 0).await.unwrap();
     /// }
+    ///
+    /// tokio::runtime::Runtime::new().unwrap().block_on(test_publish_text_note());
     /// ```
     pub async fn publish_text_note(
         &mut self,

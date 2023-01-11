@@ -1,5 +1,7 @@
+use events::{Event, EventPrepare};
 use secp256k1::{PublicKey, SecretKey};
 use std::str::FromStr;
+use utils::get_timestamp;
 
 pub mod bech32;
 pub mod events;
@@ -20,6 +22,61 @@ pub struct Identity {
     pub public_key: PublicKey,
     pub public_key_str: String,
     pub address: String,
+}
+
+impl Identity {
+    /// Make event and return it
+    ///
+    /// # Example
+    /// ```rust
+    /// use nostr_rust::{nostr_client::Client, Identity};
+    /// use std::str::FromStr;
+    ///
+    ///
+    /// #[cfg(feature = "async")]
+    /// async fn test_make_event() {
+    ///    let mut client = Client::new(vec![env!("RELAY_URL")]).await.unwrap();
+    ///    let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
+    ///    let event = identity.make_event(1, "Hello Nostr!", &vec![], 0);
+    ///
+    ///    assert_eq!(event.kind, 1);
+    ///    assert_eq!(event.content, "Hello Nostr!");
+    ///    assert_eq!(event.tags.len(), 0);
+    /// }
+    ///
+    /// #[cfg(not(feature = "async"))]
+    /// fn test_make_event() {
+    ///    let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
+    ///    let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
+    ///    let event = identity.make_event(1, "Hello Nostr!", &vec![], 0);
+    ///
+    ///    assert_eq!(event.kind, 1);
+    ///    assert_eq!(event.content, "Hello Nostr!");
+    ///    assert_eq!(event.tags.len(), 0);
+    /// }
+    ///
+    /// #[cfg(feature = "async")]
+    /// tokio::runtime::Runtime::new().unwrap().block_on(test_make_event());
+    ///
+    /// #[cfg(not(feature = "async"))]
+    /// test_make_event();
+    /// ```
+    pub fn make_event(
+        &self,
+        kind: u16,
+        content: &str,
+        tags: &[Vec<String>],
+        difficulty_target: u16,
+    ) -> Event {
+        EventPrepare {
+            pub_key: self.public_key_str.clone(),
+            created_at: get_timestamp(),
+            kind,
+            tags: tags.to_vec(),
+            content: content.to_string(),
+        }
+        .to_event(self, difficulty_target)
+    }
 }
 
 impl FromStr for Identity {
