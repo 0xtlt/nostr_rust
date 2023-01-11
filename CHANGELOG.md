@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.19.2
+
+- Fix: `Client::get_events_of` method - Now skip non events messages
+
 ## 0.19.1
 
 - Fix: `Client::get_events_of` method - Now skip non events messages
