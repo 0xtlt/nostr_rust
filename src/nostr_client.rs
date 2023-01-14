@@ -626,15 +626,20 @@ impl Client {
         // Subscribe
         let id = self.subscribe(filters)?;
 
+        let mut waiting_relays: Vec<String> = self.relays.keys().map(|k| k.to_string()).collect();
+
         // Get the events
-        loop {
+        while !waiting_relays.is_empty() {
             let data = self.next_data()?;
             let mut break_loop = false;
 
-            for (_, message) in data {
+            for (relay, message) in data {
                 let event: Value = serde_json::from_str(&message.to_string())?;
 
                 if event[0] == "EOSE" && event[1].as_str() == Some(&id) {
+                    let index = waiting_relays.iter().position(|r| r == &relay).unwrap();
+                    waiting_relays.remove(index);
+
                     break_loop = true;
                     break;
                 }
@@ -703,8 +708,10 @@ impl Client {
         // Subscribe
         let id = self.subscribe(filters).await?;
 
+        let mut waiting_relays: Vec<String> = self.relays.keys().map(|k| k.to_string()).collect();
+
         // Get the events
-        loop {
+        while !waiting_relays.is_empty() {
             let data = self.next_data().await?;
             let mut break_loop = false;
 
@@ -712,6 +719,9 @@ impl Client {
                 let event: Value = serde_json::from_str(&message.to_string()).unwrap();
 
                 if event[0] == "EOSE" && event[1].as_str() == Some(&id) {
+                    let index = waiting_relays.iter().position(|r| r == &relay).unwrap();
+                    waiting_relays.remove(index);
+
                     break_loop = true;
                     break;
                 }
