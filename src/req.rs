@@ -21,12 +21,6 @@ pub struct ReqFilter {
     pub authors: Option<Vec<String>>,
     /// a list of a kind numbers
     pub kinds: Option<Vec<u64>>,
-    /// a list of event ids that are referenced in an "e" tag
-    #[serde(rename = "#e")]
-    pub e: Option<Vec<String>>,
-    /// a list of pubkeys that are referenced in a "p" tag
-    #[serde(rename = "#p")]
-    pub p: Option<Vec<String>>,
     /// a timestamp, events must be newer than this to pass
     pub since: Option<u64>,
     /// a timestamp, events must be older than this to pass
@@ -52,14 +46,6 @@ impl ReqFilter {
 
         if let Some(kinds) = &self.kinds {
             json["kinds"] = json!(kinds);
-        }
-
-        if let Some(e) = &self.e {
-            json["#e"] = json!(e);
-        }
-
-        if let Some(p) = &self.p {
-            json["#p"] = json!(p);
         }
 
         if let Some(since) = &self.since {

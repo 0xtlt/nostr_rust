@@ -25,27 +25,6 @@ pub enum NIP11Error {
     RelayInformationDocumentNotAccessible,
 }
 
-#[cfg(not(feature = "async"))]
-pub fn get_relay_information_document(
-    relay_url: &str,
-) -> Result<RelayInformationDocument, NIP11Error> {
-    let relay_url = relay_url.replacen("ws", "http", 1);
-    let relay_response: RelayInformationDocument = match reqwest::blocking::Client::new()
-        .get(relay_url)
-        .header("Accept", "application/nostr+json")
-        .send()
-    {
-        Ok(response) => match response.json() {
-            Ok(json) => json,
-            Err(_) => return Err(NIP11Error::InvalidRelayInformationDocument),
-        },
-        Err(_) => return Err(NIP11Error::RelayInformationDocumentNotAccessible),
-    };
-
-    Ok(relay_response)
-}
-
-#[cfg(feature = "async")]
 pub async fn get_relay_information_document(
     relay_url: &str,
 ) -> Result<RelayInformationDocument, NIP11Error> {

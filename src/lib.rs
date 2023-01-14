@@ -13,6 +13,9 @@ pub mod subscription;
 pub mod utils;
 pub mod websocket;
 
+#[cfg(feature = "blocking")]
+pub mod blocking;
+
 pub const DEFAULT_HASHTAG: &str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
 pub type Message = tungstenite::Message;
