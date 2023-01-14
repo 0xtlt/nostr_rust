@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.0
+
+- Breaking change: `EventPrepare.kind` and `Event.kind` are now `u64` instead of `u16`
+
 ## 0.20.2
 
 - Fix: `Client::get_events_of` Waiting for all relays (@0xtlt)
