@@ -1,19 +1,90 @@
-use crate::{events::Event, nostr_client::Client, req::ReqFilter};
+use crate::{
+    events::Event,
+    nostr_client::{Client, ClientError},
+    req::ReqFilter,
+};
 use std::collections::HashMap;
 
+pub enum SubscriptionMessage {
+    /// ["EVENT", <subscription_id>, <event JSON as defined above>]
+    Event(String, Event),
+    /// ["NOTICE", <message>]
+    Notice(String),
+    /// ["OK", <event_id>, <true|false>, <message>]
+    Ok(String, bool, String),
+}
+
 impl Client {
-    pub fn listen(&self) {
+    pub async fn listen(&self) -> Result<(), ClientError> {
         loop {
-            let events = self.next_data().unwrap();
+            let events = self.next_data().await?;
 
             for (relay_url, message) in events.iter() {
-                match message {
-                    tungstenite::Message::Text(_) => todo!(),
-                    tungstenite::Message::Binary(_) => todo!(),
-                    tungstenite::Message::Ping(_) => todo!(),
-                    tungstenite::Message::Pong(_) => todo!(),
-                    tungstenite::Message::Close(_) => todo!(),
-                    tungstenite::Message::Frame(_) => todo!(),
+                if let tungstenite::Message::Text(text) = message {
+                    let json = serde_json::from_str::<Vec<serde_json::Value>>(text);
+
+                    if json.is_err() {
+                        continue;
+                    }
+
+                    let json = json.unwrap();
+
+                    if json.is_empty() {
+                        continue;
+                    }
+
+                    let relay_message_type = &json[0].as_str();
+
+                    if relay_message_type.is_none() {
+                        continue;
+                    }
+
+                    let relay_message_type = relay_message_type.unwrap();
+
+                    match relay_message_type {
+                        "EVENT" => {
+                            let events = crate::events::extract_events(text);
+
+                            let subscription_id = {
+                                if json.len() < 2 {
+                                    continue;
+                                }
+
+                                if let Some(subscription_id) = json[1].as_str() {
+                                    if !subscription_id.starts_with('{') {
+                                        Some(subscription_id.to_string())
+                                    } else {
+                                        None
+                                    }
+                                } else {
+                                    None
+                                }
+                            };
+
+                            if subscription_id.is_none() {
+                                continue;
+                            }
+
+                            let subscription_id = subscription_id.unwrap();
+
+                            let mut subscription_obj = self.subscription_pool.lock().await;
+
+                            let subscription_obj =
+                                subscription_obj.subscriptions.get_mut(&subscription_id);
+
+                            if subscription_obj.is_none() {
+                                continue;
+                            }
+
+                            let subscription_obj = subscription_obj.unwrap();
+
+                            // TODO: for me, continue here
+                        }
+                        "OK" => {}
+                        _ => {
+                            continue;
+                        }
+                    };
                 }
             }
         }
@@ -51,8 +122,4 @@ impl Default for SubscriptionPool {
     fn default() -> Self {
         Self::new()
     }
-}
-
-pub enum SubscriptionMessage {
-    Event(Event),
 }

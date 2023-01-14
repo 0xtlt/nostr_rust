@@ -5,8 +5,9 @@ use crate::websocket::{self, SimplifiedWS};
 use crate::Message;
 use serde_json::{json, Value};
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 use thiserror::Error;
+use tokio::sync::Mutex;
 
 #[derive(Error, Debug)]
 pub enum ClientError {
@@ -183,7 +184,7 @@ impl Client {
     ///
     /// tokio::runtime::Runtime::new().unwrap().block_on(test_next_data());
     /// ```
-    pub async fn next_data(&mut self) -> Result<Vec<(String, tungstenite::Message)>, ClientError> {
+    pub async fn next_data(&self) -> Result<Vec<(String, tungstenite::Message)>, ClientError> {
         let mut events: Vec<(String, tungstenite::Message)> = Vec::new();
 
         for (relay_name, socket) in self.relays.iter() {
