@@ -9,8 +9,12 @@ pub mod keys;
 pub mod nips;
 pub mod nostr_client;
 pub mod req;
+pub mod subscription;
 pub mod utils;
 pub mod websocket;
+
+#[cfg(feature = "blocking")]
+pub mod blocking;
 
 pub const DEFAULT_HASHTAG: &str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
@@ -63,7 +67,7 @@ impl Identity {
     /// ```
     pub fn make_event(
         &self,
-        kind: u16,
+        kind: u64,
         content: &str,
         tags: &[Vec<String>],
         difficulty_target: u16,

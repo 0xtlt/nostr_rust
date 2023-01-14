@@ -1,7 +1,7 @@
 use crate::utils::random_hash;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use std::fmt;
+use std::{collections::HashMap, fmt};
 
 /// Req struct is used to request events and subscribe to new updates.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -20,19 +20,15 @@ pub struct ReqFilter {
     /// a list of pubkeys or prefixes, the pubkey of an event must be one of these
     pub authors: Option<Vec<String>>,
     /// a list of a kind numbers
-    pub kinds: Option<Vec<u16>>,
-    /// a list of event ids that are referenced in an "e" tag
-    #[serde(rename = "#e")]
-    pub e: Option<Vec<String>>,
-    /// a list of pubkeys that are referenced in a "p" tag
-    #[serde(rename = "#p")]
-    pub p: Option<Vec<String>>,
+    pub kinds: Option<Vec<u64>>,
     /// a timestamp, events must be newer than this to pass
     pub since: Option<u64>,
     /// a timestamp, events must be older than this to pass
     pub until: Option<u64>,
     /// maximum number of events to be returned in the initial query
     pub limit: Option<u64>,
+    /// Generic Tag Queries - HashMap of first index tag name and its value
+    pub tag_query: Option<HashMap<String, String>>,
 }
 
 impl ReqFilter {
@@ -52,14 +48,6 @@ impl ReqFilter {
             json["kinds"] = json!(kinds);
         }
 
-        if let Some(e) = &self.e {
-            json["#e"] = json!(e);
-        }
-
-        if let Some(p) = &self.p {
-            json["#p"] = json!(p);
-        }
-
         if let Some(since) = &self.since {
             json["since"] = json!(since);
         }
@@ -70,6 +58,16 @@ impl ReqFilter {
 
         if let Some(limit) = &self.limit {
             json["limit"] = json!(limit);
+        }
+
+        if let Some(tag_query) = &self.tag_query {
+            for (key, value) in tag_query {
+                if key.starts_with("#") {
+                    json[key] = json!(value);
+                } else {
+                    json["#".to_string() + key] = json!(value);
+                }
+            }
         }
 
         json

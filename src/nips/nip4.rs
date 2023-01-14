@@ -19,6 +19,7 @@ use base64::Engine;
 use cbc::{Decryptor, Encryptor};
 use secp256k1::{ecdh, rand::random, PublicKey, SecretKey, XOnlyPublicKey};
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::convert::From;
 use std::str::FromStr;
 use thiserror::Error;
@@ -116,46 +117,6 @@ fn from_schnorr_pk(schnorr_pk: &XOnlyPublicKey) -> Result<PublicKey, Error> {
 }
 
 impl Client {
-    #[cfg(not(feature = "async"))]
-    /// Send private message to a public key
-    ///
-    /// # Example
-    /// ```rust
-    /// use nostr_rust::{nostr_client::Client, Identity};
-    /// use std::str::FromStr;
-    /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
-    /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
-    /// let pubkey = "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6";
-    ///
-    /// client.send_private_message(&identity, pubkey, "Hello from Rust Nostr Client!", 0).unwrap();
-    /// ```
-    pub fn send_private_message(
-        &mut self,
-        identity: &Identity,
-        pubkey: &str,
-        message: &str,
-        difficulty_target: u16,
-    ) -> Result<Event, Error> {
-        let hex_pubkey = auto_bech32_to_hex(pubkey)?;
-        let x_pub_key = secp256k1::XOnlyPublicKey::from_str(&hex_pubkey)?;
-        println!("x_pub_key: {:?}", x_pub_key);
-        let encrypted_message = encrypt(&identity.secret_key, &x_pub_key, message)?;
-        println!("encrypted_message: {:?}", encrypted_message);
-
-        let event = EventPrepare {
-            pub_key: identity.public_key_str.clone(),
-            created_at: get_timestamp(),
-            kind: 4,
-            tags: vec![vec!["p".to_string(), hex_pubkey]],
-            content: encrypted_message,
-        }
-        .to_event(identity, difficulty_target);
-
-        self.publish_event(&event).unwrap();
-        Ok(event)
-    }
-
-    #[cfg(feature = "async")]
     /// Send private message to a public key
     ///
     /// # Example
@@ -163,13 +124,14 @@ impl Client {
     /// use nostr_rust::{nostr_client::Client, Identity};
     /// use std::str::FromStr;
     ///
-    /// #[tokio::test]
     /// async fn test_send_private_message() {
     ///     let mut client = Client::new(vec![env!("RELAY_URL")]).await.unwrap();
     ///     let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
     ///     let pubkey = "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6";
     ///     client.send_private_message(&identity, pubkey, "Hello from Rust Nostr Client!", 0).await.unwrap();
     /// }
+    ///
+    /// tokio::runtime::Runtime::new().unwrap().block_on(test_send_private_message());
     /// ```
     pub async fn send_private_message(
         &mut self,
@@ -195,55 +157,6 @@ impl Client {
         Ok(event)
     }
 
-    #[cfg(not(feature = "async"))]
-    /// Get private events (messages) with a public key
-    ///
-    /// # Example
-    /// ```rust
-    /// use nostr_rust::{nostr_client::Client, Identity};
-    /// use std::str::FromStr;
-    /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
-    /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
-    /// let pubkey = "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6";
-    /// let messages = client.get_private_events_with(&identity, pubkey, 10).unwrap();
-    /// ```
-    pub fn get_private_events_with(
-        &mut self,
-        identity: &Identity,
-        pubkey: &str,
-        limit: u64,
-    ) -> Result<Vec<Event>, Error> {
-        let hex_pubkey = &auto_bech32_to_hex(pubkey)?;
-
-        let events = self
-            .get_events_of(vec![
-                ReqFilter {
-                    ids: None,
-                    authors: Some(vec![identity.public_key_str.clone()]),
-                    kinds: Some(vec![4]),
-                    e: None,
-                    p: Some(vec![hex_pubkey.to_string()]),
-                    since: None,
-                    until: None,
-                    limit: Some(limit),
-                },
-                ReqFilter {
-                    ids: None,
-                    authors: Some(vec![hex_pubkey.to_string()]),
-                    kinds: Some(vec![4]),
-                    e: None,
-                    p: Some(vec![identity.public_key_str.clone()]),
-                    since: None,
-                    until: None,
-                    limit: Some(limit),
-                },
-            ])
-            .unwrap();
-
-        Ok(events)
-    }
-
-    #[cfg(feature = "async")]
     /// Get private events (messages) with a public key
     ///
     /// # Example
@@ -251,13 +164,14 @@ impl Client {
     /// use nostr_rust::{nostr_client::Client, Identity};
     /// use std::str::FromStr;
     ///
-    /// #[tokio::test]
     /// async fn test_get_private_events_with() {
     ///     let mut client = Client::new(vec![env!("RELAY_URL")]).await.unwrap();
     ///     let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
     ///     let pubkey = "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6";
     ///     client.get_private_events_with(&identity, pubkey, 10).await.unwrap();
     /// }
+    ///
+    /// tokio::runtime::Runtime::new().unwrap().block_on(test_get_private_events_with());
     /// ```
     pub async fn get_private_events_with(
         &mut self,
@@ -273,21 +187,22 @@ impl Client {
                     ids: None,
                     authors: Some(vec![identity.public_key_str.clone()]),
                     kinds: Some(vec![4]),
-                    e: None,
-                    p: Some(vec![hex_pubkey.to_string()]),
                     since: None,
                     until: None,
                     limit: Some(limit),
+                    tag_query: Some(HashMap::from([("p".to_string(), hex_pubkey.to_string())])),
                 },
                 ReqFilter {
                     ids: None,
                     authors: Some(vec![hex_pubkey.to_string()]),
                     kinds: Some(vec![4]),
-                    e: None,
-                    p: Some(vec![identity.public_key_str.clone()]),
                     since: None,
                     until: None,
                     limit: Some(limit),
+                    tag_query: Some(HashMap::from([(
+                        "p".to_string(),
+                        identity.public_key_str.clone(),
+                    )])),
                 },
             ])
             .await
@@ -296,57 +211,6 @@ impl Client {
         Ok(events)
     }
 
-    #[cfg(not(feature = "async"))]
-    /// Get private messages with a public key
-    ///
-    /// # Example
-    /// ```rust
-    /// use nostr_rust::{nostr_client::Client, Identity};
-    /// use std::str::FromStr;
-    /// let mut client = Client::new(vec![env!("RELAY_URL")]).unwrap();
-    /// let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
-    /// let pubkey = "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6";
-    /// let messages = client.get_private_messages_with(&identity, pubkey, 10).unwrap();
-    /// ```
-    pub fn get_private_messages_with(
-        &mut self,
-        identity: &Identity,
-        pubkey: &str,
-        limit: u64,
-    ) -> Result<Vec<PrivateMessage>, Error> {
-        let hex_pubkey = &auto_bech32_to_hex(pubkey)?;
-
-        let x_pub_key = secp256k1::XOnlyPublicKey::from_str(hex_pubkey)?;
-        let events =
-            self.get_private_events_with(identity, x_pub_key.to_string().as_str(), limit)?;
-        let mut messages: Vec<PrivateMessage> = vec![];
-
-        for event in events {
-            let decrypted_message = match decrypt(&identity.secret_key, &x_pub_key, &event.content)
-            {
-                Ok(message) => message,
-                Err(_) => continue,
-            };
-
-            let private_message = PrivateMessage {
-                author: event.pub_key,
-                content: decrypted_message,
-                timestamp: event.created_at,
-            };
-
-            messages.push(private_message);
-        }
-
-        // Sort messages by timestamp
-        messages.sort_by(|a, b| a.timestamp.cmp(&b.timestamp));
-
-        // Reverse order
-        messages.reverse();
-
-        Ok(messages)
-    }
-
-    #[cfg(feature = "async")]
     /// Get private messages with a public key
     ///
     /// # Example
@@ -354,13 +218,14 @@ impl Client {
     /// use nostr_rust::{nostr_client::Client, Identity};
     /// use std::str::FromStr;
     ///
-    /// #[tokio::test]
     /// async fn test_get_private_messages_with() {
     ///     let mut client = Client::new(vec![env!("RELAY_URL")]).await.unwrap();
     ///     let identity = Identity::from_str(env!("SECRET_KEY")).unwrap();
     ///     let pubkey = "884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6";
-    ///     let messages = client.get_private_messages_with(&identity, pubkey, 10).await.unwrap();
+    ///     let messages = client.get_private_messages_with(&identity, pubkey, 2).await.unwrap();
     /// }
+    ///
+    /// tokio::runtime::Runtime::new().unwrap().block_on(test_get_private_messages_with());
     /// ```
     pub async fn get_private_messages_with(
         &mut self,
