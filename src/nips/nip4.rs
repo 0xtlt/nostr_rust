@@ -223,6 +223,7 @@ impl Client {
                     since: None,
                     until: None,
                     limit: Some(limit),
+                    tag_query: None,
                 },
                 ReqFilter {
                     ids: None,
@@ -233,6 +234,7 @@ impl Client {
                     since: None,
                     until: None,
                     limit: Some(limit),
+                    tag_query: None,
                 },
             ])
             .unwrap();
@@ -273,6 +275,7 @@ impl Client {
                     since: None,
                     until: None,
                     limit: Some(limit),
+                    tag_query: None,
                 },
                 ReqFilter {
                     ids: None,
@@ -283,6 +286,7 @@ impl Client {
                     since: None,
                     until: None,
                     limit: Some(limit),
+                    tag_query: None,
                 },
             ])
             .await

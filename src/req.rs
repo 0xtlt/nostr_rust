@@ -1,7 +1,7 @@
 use crate::utils::random_hash;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use std::fmt;
+use std::{collections::HashMap, fmt};
 
 /// Req struct is used to request events and subscribe to new updates.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -33,6 +33,8 @@ pub struct ReqFilter {
     pub until: Option<u64>,
     /// maximum number of events to be returned in the initial query
     pub limit: Option<u64>,
+    /// Generic Tag Queries - HashMap of first index tag name and its value
+    pub tag_query: Option<HashMap<String, String>>,
 }
 
 impl ReqFilter {
@@ -70,6 +72,16 @@ impl ReqFilter {
 
         if let Some(limit) = &self.limit {
             json["limit"] = json!(limit);
+        }
+
+        if let Some(tag_query) = &self.tag_query {
+            for (key, value) in tag_query {
+                if key.starts_with("#") {
+                    json[key] = json!(value);
+                } else {
+                    json["#".to_string() + key] = json!(value);
+                }
+            }
         }
 
         json
