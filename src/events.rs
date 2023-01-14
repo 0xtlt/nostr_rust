@@ -1,13 +1,10 @@
-use std::fmt;
-
+use crate::Identity;
 use secp256k1::{schnorr::Signature, KeyPair, XOnlyPublicKey, SECP256K1};
 use serde_derive::{Deserialize, Serialize};
 use serde_json::json;
+use std::fmt;
 use std::str::FromStr;
-
 use thiserror::Error;
-
-use crate::Identity;
 
 /// EventPrepare is the struct used to prepare an event before publishing it (signing it and assigning it an id)
 #[derive(Serialize, Deserialize, Debug)]
@@ -19,7 +16,7 @@ pub struct EventPrepare {
     pub created_at: u64,
     /// integer
     /// 0: NostrEvent
-    pub kind: u16,
+    pub kind: u64,
     /// Tags
     pub tags: Vec<Vec<String>>,
     /// arbitrary string
@@ -153,7 +150,7 @@ pub struct Event {
     pub created_at: u64,
     /// integer
     /// 0: NostrEvent
-    pub kind: u16,
+    pub kind: u64,
     /// Tags
     pub tags: Vec<Vec<String>>,
     /// arbitrary string

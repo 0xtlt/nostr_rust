@@ -64,7 +64,7 @@ impl Identity {
     /// ```
     pub fn make_event(
         &self,
-        kind: u16,
+        kind: u64,
         content: &str,
         tags: &[Vec<String>],
         difficulty_target: u16,
