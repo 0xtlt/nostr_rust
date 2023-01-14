@@ -1,10 +1,11 @@
 use crate::events::Event;
 use crate::req::{Req, ReqFilter};
+use crate::subscription::SubscriptionPool;
 use crate::websocket::{self, SimplifiedWS};
 use crate::Message;
 use serde_json::{json, Value};
 use std::collections::HashMap;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -36,6 +37,7 @@ pub struct Client {
     #[cfg(feature = "async")]
     pub relays: HashMap<String, Arc<tokio::sync::Mutex<SimplifiedWS>>>,
     pub subscriptions: HashMap<String, Vec<Message>>,
+    pub subscription_pool: Arc<Mutex<SubscriptionPool>>,
 }
 
 impl Client {
@@ -51,6 +53,7 @@ impl Client {
         let mut client = Self {
             relays: HashMap::new(),
             subscriptions: HashMap::new(),
+            subscription_pool: Arc::new(Mutex::new(SubscriptionPool::new())),
         };
 
         for relay in default_relays {
@@ -276,7 +279,7 @@ impl Client {
     /// // Wait 3s for the thread to finish
     /// std::thread::sleep(std::time::Duration::from_secs(3));
     /// ```
-    pub fn next_data(&mut self) -> Result<Vec<(String, tungstenite::Message)>, ClientError> {
+    pub fn next_data(&self) -> Result<Vec<(String, tungstenite::Message)>, ClientError> {
         let mut events: Vec<(String, tungstenite::Message)> = Vec::new();
 
         for (relay_name, socket) in self.relays.iter() {
