@@ -157,6 +157,7 @@ impl Client {
             since: None,
             until: None,
             limit: Some(1),
+            tag_query: None,
         }])?;
 
         for event in events {
@@ -215,6 +216,7 @@ impl Client {
                 since: None,
                 until: None,
                 limit: Some(1),
+                tag_query: None,
             }])
             .await?;
 
