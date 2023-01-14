@@ -1,3 +1,4 @@
+use hex::FromHexError;
 use bech32::{FromBase32, ToBase32};
 use thiserror::Error;
 
@@ -22,6 +23,13 @@ impl From<bech32::Error> for Bech32Error {
     }
 }
 
+impl From<FromHexError> for Bech32Error {
+    fn from(_err: hex::FromHexError) -> Self {
+        Self::InvalidHex
+    }
+}
+
+
 /// Transform a string (bech32 or hex) into an bech32 string
 ///
 /// # Example
@@ -42,7 +50,7 @@ pub fn to_bech32(kind: ToBech32Kind, key: &str) -> Result<String, Bech32Error> {
             } else {
                 return Ok(bech32::encode(
                     "nsec",
-                    hex::decode(key).unwrap().to_base32(),
+                    hex::decode(key)?.to_base32(),
                     bech32::Variant::Bech32,
                 )?);
             }
@@ -55,7 +63,7 @@ pub fn to_bech32(kind: ToBech32Kind, key: &str) -> Result<String, Bech32Error> {
             } else {
                 return Ok(bech32::encode(
                     "npub",
-                    hex::decode(key).unwrap().to_base32(),
+                    hex::decode(key)?.to_base32(),
                     bech32::Variant::Bech32,
                 )?);
             }
@@ -68,7 +76,7 @@ pub fn to_bech32(kind: ToBech32Kind, key: &str) -> Result<String, Bech32Error> {
             } else {
                 return Ok(bech32::encode(
                     "note",
-                    hex::decode(key).unwrap().to_base32(),
+                    hex::decode(key)?.to_base32(),
                     bech32::Variant::Bech32,
                 )?);
             }
