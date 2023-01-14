@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.20.1
+
+- Edit: Everywhere where we need to give a public key hex or event id hex, we can now give a bech32 public key (npub and note) except for `Client::set_contact_list` method (@0xtlt)
+
 ## 0.20.0
 
 - Add: `bech32::auto_bech32_to_hex` method - Auto detect bech32 (note, nsec or npub,) or hex and force convert to hex

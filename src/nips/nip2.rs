@@ -1,3 +1,4 @@
+use crate::bech32::auto_bech32_to_hex;
 use crate::{
     events::EventPrepare,
     nostr_client::{Client, ClientError},
@@ -13,13 +14,10 @@ use thiserror::Error;
 #[derive(Error, Debug)]
 pub enum NIP2Error {
     #[error("The client has an error")]
-    ClientError(ClientError),
-}
+    ClientError(#[from] ClientError),
 
-impl From<ClientError> for NIP2Error {
-    fn from(err: ClientError) -> Self {
-        Self::ClientError(err)
-    }
+    #[error("Bech32 Error: {}", _0)]
+    Bech32Error(#[from] crate::bech32::Bech32Error),
 }
 
 #[derive(Debug, Clone)]
@@ -146,11 +144,13 @@ impl Client {
     /// let contact_list = client.get_contact_list("884704bd421721e292edbff42eb77547fe115c6ff9825b08fc366be4cd69e9f6").unwrap();
     /// ```
     pub fn get_contact_list(&mut self, pubkey: &str) -> Result<Vec<ContactListTag>, NIP2Error> {
+        let hex_id = auto_bech32_to_hex(pubkey)?;
+
         let mut contact_list: Vec<ContactListTag> = vec![];
 
         let events = self.get_events_of(vec![ReqFilter {
             ids: None,
-            authors: Some(vec![pubkey.to_string()]),
+            authors: Some(vec![hex_id]),
             kinds: Some(vec![3]),
             e: None,
             p: None,
@@ -202,12 +202,13 @@ impl Client {
         &mut self,
         pubkey: &str,
     ) -> Result<Vec<ContactListTag>, NIP2Error> {
+        let hex_id = auto_bech32_to_hex(pubkey)?;
         let mut contact_list: Vec<ContactListTag> = vec![];
 
         let events = self
             .get_events_of(vec![ReqFilter {
                 ids: None,
-                authors: Some(vec![pubkey.to_string()]),
+                authors: Some(vec![hex_id]),
                 kinds: Some(vec![3]),
                 e: None,
                 p: None,

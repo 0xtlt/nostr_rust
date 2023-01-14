@@ -174,11 +174,12 @@ impl Client {
     pub async fn send_private_message(
         &mut self,
         identity: &Identity,
-        hex_pubkey: &str,
+        pubkey: &str,
         message: &str,
         difficulty_target: u16,
     ) -> Result<Event, Error> {
-        let x_pub_key = secp256k1::XOnlyPublicKey::from_str(hex_pubkey)?;
+        let hex_pubkey = auto_bech32_to_hex(pubkey)?;
+        let x_pub_key = secp256k1::XOnlyPublicKey::from_str(&hex_pubkey)?;
         let encrypted_message = encrypt(&identity.secret_key, &x_pub_key, message)?;
 
         let event = EventPrepare {
@@ -209,9 +210,11 @@ impl Client {
     pub fn get_private_events_with(
         &mut self,
         identity: &Identity,
-        hex_pubkey: &str,
+        pubkey: &str,
         limit: u64,
     ) -> Result<Vec<Event>, Error> {
+        let hex_pubkey = &auto_bech32_to_hex(pubkey)?;
+
         let events = self
             .get_events_of(vec![
                 ReqFilter {
@@ -259,9 +262,11 @@ impl Client {
     pub async fn get_private_events_with(
         &mut self,
         identity: &Identity,
-        hex_pubkey: &str,
+        pubkey: &str,
         limit: u64,
     ) -> Result<Vec<Event>, Error> {
+        let hex_pubkey = &auto_bech32_to_hex(pubkey)?;
+
         let events = self
             .get_events_of(vec![
                 ReqFilter {
@@ -306,9 +311,11 @@ impl Client {
     pub fn get_private_messages_with(
         &mut self,
         identity: &Identity,
-        hex_pubkey: &str,
+        pubkey: &str,
         limit: u64,
     ) -> Result<Vec<PrivateMessage>, Error> {
+        let hex_pubkey = &auto_bech32_to_hex(pubkey)?;
+
         let x_pub_key = secp256k1::XOnlyPublicKey::from_str(hex_pubkey)?;
         let events =
             self.get_private_events_with(identity, x_pub_key.to_string().as_str(), limit)?;
@@ -358,9 +365,11 @@ impl Client {
     pub async fn get_private_messages_with(
         &mut self,
         identity: &Identity,
-        hex_pubkey: &str,
+        pubkey: &str,
         limit: u64,
     ) -> Result<Vec<PrivateMessage>, Error> {
+        let hex_pubkey = &auto_bech32_to_hex(pubkey)?;
+
         let x_pub_key = secp256k1::XOnlyPublicKey::from_str(hex_pubkey)?;
         let events = self
             .get_private_events_with(identity, x_pub_key.to_string().as_str(), limit)

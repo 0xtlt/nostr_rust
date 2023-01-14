@@ -1,16 +1,19 @@
-use thiserror::Error;
-
+use crate::bech32::auto_bech32_to_hex;
 use crate::{
     events::{Event, EventPrepare},
     nostr_client::{Client, ClientError},
     utils::get_timestamp,
     Identity,
 };
+use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum NIP25Error {
     #[error("The client has an error")]
     ClientError(ClientError),
+
+    #[error("Bech32 Error: {}", _0)]
+    Bech32Error(#[from] crate::bech32::Bech32Error),
 }
 
 impl From<ClientError> for NIP25Error {
@@ -45,14 +48,14 @@ impl Client {
         reaction: &str,
         difficulty_target: u16,
     ) -> Result<Event, NIP25Error> {
+        let hex_id = auto_bech32_to_hex(event_id)?;
+        let hex_pk = auto_bech32_to_hex(event_pub_key)?;
+
         let event = EventPrepare {
             pub_key: identity.public_key_str.clone(),
             created_at: get_timestamp(),
             kind: 7,
-            tags: vec![
-                vec!["e".to_string(), event_id.to_string()],
-                vec!["p".to_string(), event_pub_key.to_string()],
-            ],
+            tags: vec![vec!["e".to_string(), hex_id], vec!["p".to_string(), hex_pk]],
             content: reaction.to_string(),
         }
         .to_event(identity, difficulty_target);
@@ -90,14 +93,14 @@ impl Client {
         reaction: &str,
         difficulty_target: u16,
     ) -> Result<Event, NIP25Error> {
+        let hex_id = auto_bech32_to_hex(event_id)?;
+        let hex_pk = auto_bech32_to_hex(event_pub_key)?;
+
         let event = EventPrepare {
             pub_key: identity.public_key_str.clone(),
             created_at: get_timestamp(),
             kind: 7,
-            tags: vec![
-                vec!["e".to_string(), event_id.to_string()],
-                vec!["p".to_string(), event_pub_key.to_string()],
-            ],
+            tags: vec![vec!["e".to_string(), hex_id], vec!["p".to_string(), hex_pk]],
             content: reaction.to_string(),
         }
         .to_event(identity, difficulty_target);
@@ -124,7 +127,10 @@ impl Client {
         event_pub_key: &str,
         difficulty_target: u16,
     ) -> Result<Event, NIP25Error> {
-        self.react_to(identity, event_id, event_pub_key, "+", difficulty_target)
+        let hex_id = auto_bech32_to_hex(event_id)?;
+        let hex_pk = auto_bech32_to_hex(event_pub_key)?;
+
+        self.react_to(identity, &hex_id, &hex_pk, "+", difficulty_target)
     }
 
     #[cfg(feature = "async")]
@@ -149,7 +155,10 @@ impl Client {
         event_pub_key: &str,
         difficulty_target: u16,
     ) -> Result<Event, NIP25Error> {
-        self.react_to(identity, event_id, event_pub_key, "+", difficulty_target)
+        let hex_id = auto_bech32_to_hex(event_id)?;
+        let hex_pk = auto_bech32_to_hex(event_pub_key)?;
+
+        self.react_to(identity, &hex_id, &hex_pk, "+", difficulty_target)
             .await
     }
 
@@ -171,7 +180,10 @@ impl Client {
         event_pub_key: &str,
         difficulty_target: u16,
     ) -> Result<Event, NIP25Error> {
-        self.react_to(identity, event_id, event_pub_key, "-", difficulty_target)
+        let hex_id = auto_bech32_to_hex(event_id)?;
+        let hex_pk = auto_bech32_to_hex(event_pub_key)?;
+
+        self.react_to(identity, &hex_id, &hex_pk, "-", difficulty_target)
     }
 
     #[cfg(feature = "async")]
@@ -196,7 +208,10 @@ impl Client {
         event_pub_key: &str,
         difficulty_target: u16,
     ) -> Result<Event, NIP25Error> {
-        self.react_to(identity, event_id, event_pub_key, "-", difficulty_target)
+        let hex_id = auto_bech32_to_hex(event_id)?;
+        let hex_pk = auto_bech32_to_hex(event_pub_key)?;
+
+        self.react_to(identity, &hex_id, &hex_pk, "-", difficulty_target)
             .await
     }
 }

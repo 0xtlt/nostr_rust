@@ -1,6 +1,6 @@
-use std::collections::HashMap;
-
+use crate::bech32::auto_bech32_to_hex;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use thiserror::Error;
 
 // Implementation of the NIP5 protocol
@@ -20,6 +20,9 @@ pub enum NIP5Error {
 
     #[error("Public key doesn't match with the given NIP05 identifier")]
     MatchFailed,
+
+    #[error("Bech32 Error: {}", _0)]
+    Bech32Error(#[from] crate::bech32::Bech32Error),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -39,9 +42,10 @@ pub struct NostrWellKnown {
 /// assert_eq!(check_validity("_@", "3235036bd0957dfb27ccda02d452d7c763be40c91a1ac082ba6983b25238388c"), Err(NIP5Error::RequestFailed));
 /// ```
 pub fn check_validity(nip05: &str, pubkey: &str) -> Result<bool, NIP5Error> {
+    let hex_pubkey = auto_bech32_to_hex(pubkey)?;
     let pubkey_found = get_nip05(nip05)?;
 
-    Ok(pubkey_found == pubkey)
+    Ok(pubkey_found == hex_pubkey)
 }
 
 #[cfg(feature = "async")]
@@ -59,9 +63,10 @@ pub fn check_validity(nip05: &str, pubkey: &str) -> Result<bool, NIP5Error> {
 /// }
 /// ```
 pub async fn check_validity(nip05: &str, pubkey: &str) -> Result<bool, NIP5Error> {
+    let hex_pubkey = auto_bech32_to_hex(pubkey)?;
     let pubkey_found = get_nip05(nip05).await?;
 
-    Ok(pubkey_found == pubkey)
+    Ok(pubkey_found == hex_pubkey)
 }
 
 #[cfg(not(feature = "async"))]
