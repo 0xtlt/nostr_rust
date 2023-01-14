@@ -2,4 +2,4 @@
 /Cargo.lock
 .DS_Store
 Makefile
-main.rs
+src/main.rs

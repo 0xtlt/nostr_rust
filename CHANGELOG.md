@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.20.0
+
+- Add: `bech32::auto_bech32_to_hex` method - Auto detect bech32 (note, nsec or npub,) or hex and force convert to hex
+- Fix: NIP04 encrypt and decrypt - Now working again
+
 ## 0.19.2
 
 - Fix: `Client::get_events_of` method - Now skip non events messages

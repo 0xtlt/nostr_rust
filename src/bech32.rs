@@ -1,5 +1,5 @@
-use hex::FromHexError;
 use bech32::{FromBase32, ToBase32};
+use hex::FromHexError;
 use thiserror::Error;
 
 pub enum ToBech32Kind {
@@ -8,7 +8,7 @@ pub enum ToBech32Kind {
     Note,
 }
 
-#[derive(Debug, Error)]
+#[derive(Error, Debug, Eq, PartialEq)]
 pub enum Bech32Error {
     #[error("Invalid hex string")]
     InvalidHex,
@@ -28,7 +28,6 @@ impl From<FromHexError> for Bech32Error {
         Self::InvalidHex
     }
 }
-
 
 /// Transform a string (bech32 or hex) into an bech32 string
 ///
@@ -134,5 +133,20 @@ pub fn from_hb_to_hex(kind: ToBech32Kind, key: &str) -> Result<String, Bech32Err
                 return Ok(key);
             }
         }
+    }
+}
+
+/// Transform a string (bech32 or hex) into an hex string
+pub fn auto_bech32_to_hex(key: &str) -> Result<String, Bech32Error> {
+    let key = key.to_string();
+
+    if key.starts_with("nsec") {
+        from_hb_to_hex(ToBech32Kind::SecretKey, &key)
+    } else if key.starts_with("npub") {
+        from_hb_to_hex(ToBech32Kind::PublicKey, &key)
+    } else if key.starts_with("note") {
+        from_hb_to_hex(ToBech32Kind::Note, &key)
+    } else {
+        Ok(key)
     }
 }

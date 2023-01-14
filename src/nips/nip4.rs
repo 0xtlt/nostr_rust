@@ -4,6 +4,7 @@
 // Thanks to Yuki Kishimoto for the inspiration with his module
 // https://gitlab.com/p2kishimoto/nostr-rs-sdk/-/tree/master/crates/nostr-sdk-base
 
+use crate::bech32::auto_bech32_to_hex;
 use crate::events::{Event, EventPrepare};
 use crate::nostr_client::Client;
 use crate::req::ReqFilter;
@@ -49,13 +50,10 @@ pub enum Error {
     WrongBlockMode,
 
     #[error("Secp256k1 Error: {}", _0)]
-    Secp256k1Error(secp256k1::Error),
-}
+    Secp256k1Error(#[from] secp256k1::Error),
 
-impl From<secp256k1::Error> for Error {
-    fn from(err: secp256k1::Error) -> Self {
-        Self::Secp256k1Error(err)
-    }
+    #[error("Bech32 Error: {}", _0)]
+    Bech32Error(#[from] crate::bech32::Bech32Error),
 }
 
 pub fn decrypt(
@@ -68,12 +66,12 @@ pub fn decrypt(
         return Err(Error::InvalidContentFormat);
     }
 
-    let mut encrypted_content: Vec<u8> = general_purpose::STANDARD_NO_PAD
+    let mut encrypted_content: Vec<u8> = general_purpose::STANDARD
         .encode(parsed_content[0])
         .as_bytes()
         .to_vec();
 
-    let iv: Vec<u8> = general_purpose::STANDARD_NO_PAD
+    let iv: Vec<u8> = general_purpose::STANDARD
         .encode(parsed_content[1])
         .as_bytes()
         .to_vec();
@@ -96,8 +94,8 @@ pub fn encrypt(sk: &SecretKey, pk: &XOnlyPublicKey, text: &str) -> Result<String
 
     Ok(format!(
         "{}?iv={}",
-        general_purpose::STANDARD_NO_PAD.encode(result),
-        general_purpose::STANDARD_NO_PAD.encode(iv)
+        general_purpose::STANDARD.encode(result),
+        general_purpose::STANDARD.encode(iv)
     ))
 }
 
@@ -134,18 +132,21 @@ impl Client {
     pub fn send_private_message(
         &mut self,
         identity: &Identity,
-        hex_pubkey: &str,
+        pubkey: &str,
         message: &str,
         difficulty_target: u16,
     ) -> Result<Event, Error> {
-        let x_pub_key = secp256k1::XOnlyPublicKey::from_str(hex_pubkey)?;
+        let hex_pubkey = auto_bech32_to_hex(pubkey)?;
+        let x_pub_key = secp256k1::XOnlyPublicKey::from_str(&hex_pubkey)?;
+        println!("x_pub_key: {:?}", x_pub_key);
         let encrypted_message = encrypt(&identity.secret_key, &x_pub_key, message)?;
+        println!("encrypted_message: {:?}", encrypted_message);
 
         let event = EventPrepare {
             pub_key: identity.public_key_str.clone(),
             created_at: get_timestamp(),
             kind: 4,
-            tags: vec![vec!["p".to_string(), hex_pubkey.to_string()]],
+            tags: vec![vec!["p".to_string(), hex_pubkey]],
             content: encrypted_message,
         }
         .to_event(identity, difficulty_target);
