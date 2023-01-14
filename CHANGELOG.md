@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.20.2
+
+- Fix: `Client::get_events_of` Waiting for all relays (@0xtlt)
+
 ## 0.20.1
 
 - Edit: Everywhere where we need to give a public key hex or event id hex, we can now give a bech32 public key (npub and note) except for `Client::set_contact_list` method (@0xtlt)
