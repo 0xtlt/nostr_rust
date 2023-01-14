@@ -31,13 +31,9 @@ impl From<websocket::SimplifiedWSError> for ClientError {
 #[cfg(not(feature = "async"))]
 /// Nostr Client
 pub struct Client {
+    #[cfg(not(feature = "async"))]
     pub relays: HashMap<String, Arc<std::sync::Mutex<SimplifiedWS>>>,
-    pub subscriptions: HashMap<String, Vec<Message>>,
-}
-
-#[cfg(feature = "async")]
-/// Nostr Client
-pub struct Client {
+    #[cfg(feature = "async")]
     pub relays: HashMap<String, Arc<tokio::sync::Mutex<SimplifiedWS>>>,
     pub subscriptions: HashMap<String, Vec<Message>>,
 }

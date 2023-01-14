@@ -9,6 +9,7 @@ pub mod keys;
 pub mod nips;
 pub mod nostr_client;
 pub mod req;
+pub mod subscription;
 pub mod utils;
 pub mod websocket;
 
