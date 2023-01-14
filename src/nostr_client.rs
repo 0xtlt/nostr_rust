@@ -714,7 +714,7 @@ impl Client {
             let data = self.next_data().await?;
             let mut break_loop = false;
 
-            for (_, message) in data {
+            for (relay, message) in data {
                 let event: Value = serde_json::from_str(&message.to_string()).unwrap();
 
                 if event[0] == "EOSE" && event[1].as_str() == Some(&id) {
