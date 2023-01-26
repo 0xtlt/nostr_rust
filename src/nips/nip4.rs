@@ -14,7 +14,6 @@ use aes::{
     cipher::{block_padding::Pkcs7, BlockDecryptMut, BlockEncryptMut, KeyIvInit},
     Aes256,
 };
-use base64::engine::general_purpose;
 use base64::Engine;
 use cbc::{Decryptor, Encryptor};
 use secp256k1::{ecdh, rand::random, PublicKey, SecretKey, XOnlyPublicKey};
@@ -54,8 +53,35 @@ pub enum Error {
 
     #[error("Bech32 Error: {}", _0)]
     Bech32Error(#[from] crate::bech32::Bech32Error),
+
+    #[error("Error when decrypting the message")]
+    DecryptionError,
 }
 
+/// Decrypt a private message
+/// # Example
+///
+/// ```rust
+/// // https://github.com/0xtlt/nostr_rust/issues/32
+/// use nostr_rust::keys;
+/// use nostr_rust::nips::nip4;
+/// use secp256k1::XOnlyPublicKey;
+/// use std::str::FromStr;
+///
+/// let id1 = keys::get_random_secret_key();
+/// let id2 = keys::get_random_secret_key();
+///  let id1pk = id1.1.to_string();
+///
+///  let nostr_private_key = id2.0.to_string();
+///
+/// let event_content = "hello world!";
+///
+///  let system_sec_key = keys::secret_key_from_str(nostr_private_key).unwrap();
+///  let sender_pub_key = XOnlyPublicKey::from_str(id1pk).unwrap();
+///
+///  let message = nip4::encrypt(&system_sec_key, &sender_pub_key, event_content).unwrap();
+///  let message = nip4::decrypt(&system_sec_key, &sender_pub_key, &message).unwrap();
+/// ```
 pub fn decrypt(
     sk: &SecretKey,
     pk: &XOnlyPublicKey,
@@ -66,18 +92,26 @@ pub fn decrypt(
         return Err(Error::InvalidContentFormat);
     }
 
-    let mut encrypted_content: Vec<u8> = general_purpose::STANDARD
-        .encode(parsed_content[0])
-        .as_bytes()
+    let mut encrypted_content: Vec<u8> = base64::prelude::BASE64_STANDARD
+        .decode(parsed_content[0])
+        .unwrap()
         .to_vec();
 
-    let iv: Vec<u8> = general_purpose::STANDARD
-        .encode(parsed_content[1])
-        .as_bytes()
+    let iv: Vec<u8> = base64::prelude::BASE64_STANDARD
+        .decode(parsed_content[1])
+        .unwrap()
         .to_vec();
     let key: Vec<u8> = generate_shared_key(sk, pk)?;
 
-    let cipher = Aes256CbcDec::new(key.as_slice().into(), iv.as_slice().into());
+    let key = key.as_slice().try_into();
+    let iv = iv.as_slice().try_into();
+
+    if key.is_err() || iv.is_err() {
+        return Err(Error::Base64DecodeError);
+    }
+
+    let cipher = Aes256CbcDec::new(key.unwrap(), iv.unwrap());
+
     let result = cipher
         .decrypt_padded_mut::<Pkcs7>(&mut encrypted_content)
         .map_err(|_| Error::WrongBlockMode)?;
@@ -94,8 +128,8 @@ pub fn encrypt(sk: &SecretKey, pk: &XOnlyPublicKey, text: &str) -> Result<String
 
     Ok(format!(
         "{}?iv={}",
-        general_purpose::STANDARD.encode(result),
-        general_purpose::STANDARD.encode(iv)
+        base64::prelude::BASE64_STANDARD.encode(result),
+        base64::prelude::BASE64_STANDARD.encode(iv)
     ))
 }
 
@@ -138,9 +172,7 @@ impl Client {
     ) -> Result<Event, Error> {
         let hex_pubkey = auto_bech32_to_hex(pubkey)?;
         let x_pub_key = secp256k1::XOnlyPublicKey::from_str(&hex_pubkey)?;
-        println!("x_pub_key: {:?}", x_pub_key);
         let encrypted_message = encrypt(&identity.secret_key, &x_pub_key, message)?;
-        println!("encrypted_message: {:?}", encrypted_message);
 
         let event = EventPrepare {
             pub_key: identity.public_key_str.clone(),

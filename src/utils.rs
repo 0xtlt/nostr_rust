@@ -94,7 +94,7 @@ pub fn parse_content_tags(
             if hex.is_ok() {
                 tags.push(vec!["e".to_string(), hex.unwrap()]);
                 let last_index = tags.len() - 1;
-                contents.push(format!("#[{}]", last_index));
+                contents.push(format!("#[{last_index}]"));
             } else {
                 contents.push(part.to_string());
             }
@@ -111,7 +111,7 @@ pub fn parse_content_tags(
             if hex.is_ok() {
                 tags.push(vec!["p".to_string(), hex.unwrap()]);
                 let last_index = tags.len() - 1;
-                contents.push(format!("#[{}]", last_index));
+                contents.push(format!("#[{last_index}]"));
             } else {
                 contents.push(part.to_string());
             }

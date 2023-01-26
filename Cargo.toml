@@ -8,7 +8,7 @@ keywords = ["nostr", "rust", "protocol", "encryption", "decryption"]
 categories = ["api-bindings"]
 license = "MIT"
 authors = ["Thomas Tastet"]
-version = "0.20.2"
+version = "0.20.3"
 edition = "2021"
 
 [features]
@@ -27,7 +27,7 @@ sha256 = "1"
 hex = "0.4"
 bech32 = "0.9"
 rand = "0.8"
-secp256k1 = { version = "0.25", features = ["bitcoin_hashes", "global-context", "rand-std"] }
+secp256k1 = { version = "0.26", features = ["bitcoin_hashes", "global-context", "rand-std"] }
 tungstenite = { version = "0.18", default-features = false, features = ["handshake", "rustls-tls-webpki-roots"] }
 tokio-tungstenite = { version = "0.18", default-features = true, features = ["handshake", "rustls-tls-webpki-roots"] }
 url = "2.3"
