@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.20.3
+
+- Fix: `nips::nip04::decrypt` method - Now working again  (@0xtlt)
+
 ## 0.20.2
 
 - Fix: `Client::get_events_of` Waiting for all relays (@0xtlt)
