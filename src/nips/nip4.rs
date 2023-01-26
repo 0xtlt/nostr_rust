@@ -70,17 +70,15 @@ pub enum Error {
 ///
 /// let id1 = keys::get_random_secret_key();
 /// let id2 = keys::get_random_secret_key();
-///  let id1pk = id1.1.to_string();
-///
-///  let nostr_private_key = id2.0.to_string();
+/// let id1pk = keys::normalize_public_key(&id1.1.to_string());
 ///
 /// let event_content = "hello world!";
 ///
-///  let system_sec_key = keys::secret_key_from_str(nostr_private_key).unwrap();
-///  let sender_pub_key = XOnlyPublicKey::from_str(&id1pk).unwrap();
+/// let system_sec_key = id2.0;
+/// let sender_pub_key = XOnlyPublicKey::from_str(&id1pk).unwrap();
 ///
-///  let message = nip4::encrypt(&system_sec_key, &sender_pub_key, event_content).unwrap();
-///  let message = nip4::decrypt(&system_sec_key, &sender_pub_key, &message).unwrap();
+/// let message = nip4::encrypt(&system_sec_key, &sender_pub_key, event_content).unwrap();
+/// let message = nip4::decrypt(&system_sec_key, &sender_pub_key, &message).unwrap();
 /// ```
 pub fn decrypt(
     sk: &SecretKey,
