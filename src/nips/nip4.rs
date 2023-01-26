@@ -77,7 +77,7 @@ pub enum Error {
 /// let event_content = "hello world!";
 ///
 ///  let system_sec_key = keys::secret_key_from_str(nostr_private_key).unwrap();
-///  let sender_pub_key = XOnlyPublicKey::from_str(id1pk).unwrap();
+///  let sender_pub_key = XOnlyPublicKey::from_str(&id1pk).unwrap();
 ///
 ///  let message = nip4::encrypt(&system_sec_key, &sender_pub_key, event_content).unwrap();
 ///  let message = nip4::decrypt(&system_sec_key, &sender_pub_key, &message).unwrap();
