@@ -137,6 +137,7 @@ impl EventPrepare {
             tags: self.tags.clone(),
             content: self.content.clone(),
             sig: signature,
+            ots: None,
         }
     }
 }
@@ -160,12 +161,18 @@ pub struct Event {
     pub content: String,
     /// 64-bytes signature of the sha256 hash of the serialized event data, which is the same as the "id" field
     pub sig: String,
+    /// OpenTimestamps proof serialized in base64
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ots: Option<String>,
 }
 
 #[derive(Error, Debug, Eq, PartialEq)]
 pub enum EventError {
     #[error("Secp256k1 Error: {}", _0)]
     Secp256k1Error(secp256k1::Error),
+
+    #[error("Ots error: {0}")]
+    Ots(String),
 }
 
 impl From<secp256k1::Error> for EventError {
@@ -252,6 +259,14 @@ impl Event {
             &message,
             &XOnlyPublicKey::from_str(&self.pub_key)?,
         )?;
+        Ok(())
+    }
+
+    /// Initialize the ots optional field in this event with the OpenTimestamps proof, 
+    /// according to NIP-03
+    pub fn timestamp(&mut self) -> Result<(), EventError> {
+        let ots = nostr_ots::timestamp_event(&self.id).map_err(|e| EventError::Ots(e.to_string()))?;
+        self.ots = Some(ots);
         Ok(())
     }
 }
