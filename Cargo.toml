@@ -1,6 +1,6 @@
 [package]
 name = "nostr_rust"
-description = "A Rust implementation of the Nostr protocol"
+description = "DEPRECATED and unmaintained. Use the `nostr` or `nostr-sdk` crates (https://github.com/nostrdevkit/nostr) instead."
 documentation = "https://docs.rs/nostr_rust"
 readme = "README.md"
 repository = "https://github.com/0xtlt/nostr_rust"
@@ -8,8 +8,11 @@ keywords = ["nostr", "rust", "protocol", "encryption", "decryption"]
 categories = ["api-bindings"]
 license = "MIT"
 authors = ["Thomas Tastet"]
-version = "0.20.3"
+version = "0.20.4"
 edition = "2021"
+
+[badges]
+maintenance = { status = "deprecated" }
 
 [features]
 # Sync by default
