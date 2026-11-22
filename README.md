@@ -6,6 +6,13 @@
 [![CI](https://github.com/0xtlt/nostr_rust/actions/workflows/ci.yml/badge.svg)](https://github.com/0xtlt/nostr_rust/actions/workflows/ci.yml)
 [![Issues](https://img.shields.io/github/issues/0xtlt/nostr_rust)](https://img.shields.io/github/issues/0xtlt/nostr_rust)
 
+> [!WARNING]
+> **This project is no longer maintained and the repository is archived.**
+> It no longer receives updates, bug fixes or security patches.
+>
+> Please use **[nostr](https://github.com/nostrdevkit/nostr)** by Nostr Development Kit instead (crates [`nostr`](https://crates.io/crates/nostr) and [`nostr-sdk`](https://crates.io/crates/nostr-sdk)).
+> It is actively maintained, supports far more NIPs, and is the de facto standard Nostr library for Rust.
+
 An ergonomic, [Nostr](https://github.com/nostr-protocol/nostr) API Client for Rust.
 
 - [Changelog](CHANGELOG.md)
